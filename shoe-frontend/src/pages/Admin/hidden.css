@@ -1,0 +1,25 @@
+#product_edit {
+    visibility: hidden;
+
+}
+
+#product_edit.active {
+    visibility: visible;
+
+}
+
+#create-product {
+    visibility: hidden;
+
+}
+
+#create-product.active {
+    visibility: visible;
+
+}
+
+#blur-action.active {
+    filter: blur(4px);
+    pointer-events: none;
+    user-select: none;
+}
