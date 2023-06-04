@@ -1,7 +1,9 @@
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export const toastSuccess = (message) => {
+  console.log("call toast");
   toast.success(message, {
     position: "top-right",
     autoClose: 5000,
