@@ -1,5 +1,7 @@
 import axios from "axios";
 
+axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*";
+
 class AxiosService {
   constructor() {
     const instance = axios.create();

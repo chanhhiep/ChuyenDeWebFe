@@ -3,7 +3,9 @@ import './App.css';
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { useState } from 'react';
 import Product from './pages/Admin/product';
+import HomePage from './pages/HomePage';
 import AppProvider from './context/AppContext';
+import Toasts from "./components/Toasts";
 // import { Provider } from 'react-redux';
 // import React, { Fragment } from 'react';
 // import store from './store/store'
@@ -39,10 +41,10 @@ function App() {
       </div>
       <BrowserRouter>
         <AppProvider>         
-          {/*<Toasts />*/}
+          <Toasts />
           <Routes>
             {/*<React.Fragment>*/}
-            {/*<Route exact path="/" element={<Home />} />*/}
+            <Route exact path="/" element={<HomePage />} />
             {/* <Provider store={store}> */}
             <Route path="AdminProduct" element={<Product />} />
             {/* </Provider> */}

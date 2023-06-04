@@ -1,18 +1,41 @@
 import { Button } from 'react-bootstrap';
 import React, { useEffect, useRef, useState } from "react";
-import { useDispatch } from 'react-redux';
+//import { FaEllipsisVertical } from "@react-icons/all-files/fa/FaEllipsisVertical";
+import { FaEdit,FaTrashAlt } from 'react-icons/fa';
+//import { useDispatch } from 'react-redux';
 import "./page.css";
 import "./core.css"
 import "./theme-default.css"
-import "./hidden.css"
+//import "./hidden.css"
 //import { ToastContainer, toast } from 'react-toastify';
 import AdminHeader from "../../parts/AdminHeader";
 import AdminLeftMenu from "../../parts/AdminLeftMenu";
-import { AdminApi,getProductList,deleteProduct,updateProduct,showProduct,saveProduct } from '../../api/admin-api';
+import { AdminApi,getProductList,deleteProduct,updateProduct,showProduct,saveProduct,getCategoryList,getBrandList,getSizeList,searchProduct } from '../../api/admin-api';
 import { API_ENDPOINT } from '../../constants';
+import { toastError, toastSuccess } from '../../services/ToastService';
 export default function Product() {
     const [loading, setLoading] = useState(false);
-    const [listProduct, setListProduct] = useState([{
+    const [listProduct, setListProduct] = useState([]);
+    const [listBrand ,setListBrand] = useState([]);
+    const [listCategory,setListCategory] = useState([
+        /*
+        {
+            id:""
+            ,category:{id_category:"",img:"",name:"",parent_id:""}
+            ,name:""
+            ,price:""
+            ,discountRate:""
+            ,images:""
+            ,description:""
+            ,brand:{id:"",name:"",createDate:"",updateDate:""}
+            ,size:[]
+            ,quantity:""
+            ,createDate:""
+            ,updtaeDate:""
+        }*/
+    ]);
+    const [listSize,setListSize] = useState([]);
+    const [product, setProduct] = useState({
         id:""
         ,category:{}
         ,name:""
@@ -25,11 +48,7 @@ export default function Product() {
         ,quantity:""
         ,createDate:""
         ,updtaeDate:""
-    }]);
-    const [listBrand ,setListBrand] = useState([]);
-    const [listCategory,setListCategory] = useState([]);
-    const [listSize,setListSize] = useState([]);
-    const [product, setProduct] = useState(null);
+    });
     // const dispatch = useDispatch();
 
     //save state
@@ -61,7 +80,9 @@ export default function Product() {
         setSaveSize([...saveSize, value]);
       };
     const handleChangeImage = (event) => {
-        setSaveImage(event.target.files[0]);
+        if (event.target.files && event.target.files[0]) {
+            setSaveImage(event.target.files[0]);
+        }
     }
     //getData
     // const productData = async () => {
@@ -89,7 +110,41 @@ export default function Product() {
         const refetch = (async () => {
             await getProductList().then((res) => {
                 const { data } = res;
-                setListProduct(data);
+                console.log(data);
+                let deserializedArray = [];
+                Object.values(res.data).map((item) => deserializedArray.push(item))
+                //setListProduct([...listProduct, res]);
+                setListProduct(deserializedArray);
+                console.log(listProduct);
+            });
+            await getCategoryList().then((res) => {
+                const { data } = res;
+                console.log(data);
+                /*let deserializedArray = [];
+                Object.values(res.data).map((item) => deserializedArray.push(item))
+                //setListProduct([...listProduct, res]);*/
+                setListCategory(data);
+                console.log(listCategory);
+            });
+            await getBrandList().then((res) => {
+                const { data } = res;
+                console.log(data);
+                /*
+                let deserializedArray = [];
+                Object.values(res.data).map((item) => deserializedArray.push(item))
+                //setListProduct([...listProduct, res]);*/
+                setListBrand(data);
+                console.log(listBrand);
+            });
+            await getSizeList().then((res) => {
+                const { data } = res;
+                console.log(data);
+                /*
+                let deserializedArray = [];
+                Object.values(res.data).map((item) => deserializedArray.push(item))
+                //setListProduct([...listProduct, res]);*/
+                setListSize(data);
+                console.log(listSize);
             });
             return;
         });
@@ -98,11 +153,25 @@ export default function Product() {
             refetch();
         };
     }, []);
+ 
+
     //show data
-    const handleShowProduct = () =>{
-        showProduct().then((res)=>{
+    function handleShowProduct(id){
+        //toastSuccess("Show successfully");
+        
+        showProduct(id).then((res)=>{
             const {data} = res;
-            setProduct(data);
+            //setProduct(data);
+            setUpdateQuantity(data.quantity);
+            setUpdateId(data.id);
+            setUpdateName(data.name);
+            setUpdateCategoryId(data.category.id_category);
+            setUpdatePrice(data.price);
+            setUpdateRate(data.discountRate);
+            setUpdateDescription(data.description);
+            setUpdateBrand(data.brand.id);
+            setUpdateQuantity(data.quantity);
+            clickEditToggle();
         })
     //     fetch(`http://localhost:8080/admin/showproduct/${encodeURIComponent(data)}`)
     //     .then(res=>res.json())
@@ -115,62 +184,140 @@ export default function Product() {
     //         console.log("error")
     //   })
     }
-    const handleDeleteProduct = (id)=> {
+    function handleDeleteProduct(id) {
         deleteProduct(id).then((res) => {
             if (res.data === true) {
                 //toastSuccess("Delete successfully");
                 //removeItem();
+                toastSuccess("Delete successfully");
                 console.log("success");
             } else {
                 console.log("fails")
-                //toastError("Delete item failed");
+                toastError("Delete item failed");
             }
         })
     }
-    const handleUpdateProduct = () => {
+    function handleUpdateProduct() {   
+        if (updateName === "") {
+            toastError("Tên Product Không Được Để Trống");
+            return;
+        }
+        if (updateCategoryId === "") {
+            toastError("Tên Category Không Được Để Trống");
+            return;
+        }
+        if (updatePrice === "") {
+            toastError("Giá Không Được Để Trống");
+            return;
+        }
+        if (updateRate === "") {
+            toastError("Tỷ Lệ Giảm Giá Không Được Để Trống");
+            return;
+        }
+        if (updateDescription === "") {
+            toastError("Mô Tả Không Được Để Trống");
+            return;
+        }
+        if (updateQuantity === "") {
+            toastError("Số Lượng Không Được Để Trống");
+            return;
+        }
+        if (updateBrand === "") {
+            toastError("Thương Hiệu Không Được Để Trống");
+            return;
+        }
+
         const data ={
             id: updateId,
             name: updateName,
-            category: updateCategoryId,
+            category_id: updateCategoryId,
             price: updatePrice,
-            rate: updateRate,
+            discountRate: updateRate,
             brand: updateBrand,
             description: updateDescription,
-            quantity: updateQuantity
+            quantity: updateQuantity,
+            sizes:[]
         }
         updateProduct(data).then((res)=>{
-            if (res.data === true) {
-                //toastSuccess("Delete successfully");
+                toastSuccess("Update successfully");
                 //removeItem();
                 console.log("success");
-            } else {
-                console.log("fails")
-                //toastError("Delete item failed");
-            }
         })
     }
-    const handleSaveProduct = () =>{
+    function handleSaveProduct () {
+        if (saveName === "") {
+            toastError("Tên Product Không Được Để Trống");
+            return;
+        }
+        if (saveCategoryId === "") {
+            toastError("Tên Category Không Được Để Trống");
+            return;
+        }
+        if (savePrice === "") {
+            toastError("Giá Không Được Để Trống");
+            return;
+        }
+        if (saveRate === "") {
+            toastError("Tỷ Lệ Giảm Giá Không Được Để Trống");
+            return;
+        }
+        if (saveDescription === "") {
+            toastError("Mô Tả Không Được Để Trống");
+            return;
+        }
+        if (saveQuantity === "") {
+            toastError("Số Lượng Không Được Để Trống");
+            return;
+        }
+        if (saveBrand === "") {
+            toastError("Thương Hiệu Không Được Để Trống");
+            return;
+        }
+        if (saveSize.length === 0) {
+            toastError("Cỡ Giày Không Được Để Trống");
+            return;
+        }
+        if (saveImage === null) {
+            toastError("Hãy Thêm Ít Nhất Một Hình Ảnh");
+            return;
+        }
+        const formData = new FormData();
         const data ={
             name: saveName,
-            category: saveCategoryId,
+            category_id: saveCategoryId,
             price: savePrice,
-            rate: saveRate,
-            images: saveImage,
-            brand: saveBrand,
-            size: saveSize,
+            discountRate: saveRate,
             description: saveDescription,
-            quantity: saveQuantity
+            quantity: saveQuantity,
+            brand: saveBrand,
+            sizes: saveSize
         }
-        saveProduct(data).then((res)=>{
-            if (res.data === true) {
-                //toastSuccess("Delete successfully");
+        formData.append("product", JSON.stringify(data));
+        formData.append("images",saveImage)
+        saveProduct(formData).then((res)=>{  
+                toastSuccess("Save successfully");
                 //removeItem();
                 console.log("success");
-            } else {
-                console.log("fails")
-                //toastError("Delete item failed");
-            }
         })
+    }
+    const[keyword,setKeyWord] = useState("");
+    function handleSearch() {
+        if(keyword === ""){
+            getProductList().then((res) => {
+                const { data } = res;
+                setListProduct(data);
+                console.log(listProduct);
+            });
+        }
+        else{
+            const data ={
+                keywords : keyword
+            }
+            searchProduct(data).then((res)=>{
+                const {data} = res;
+                setListProduct(data);
+            })
+        }
     }
     // const handleDeleteProduct = (e) => {
     //     e.preventDefault()
@@ -203,43 +350,52 @@ export default function Product() {
     //     };
     // }, []);
     //togole
+    /*
     function clickEditToggle(){
         var popup = document.getElementById("product_edit");
-        popup.classList.toggle('active');
+        popup.classNameList.toggle('active');
         var blur = document.getElementById("blur-action");
-        blur.classList.toggle('active');
+        blur.classNameList.toggle('active');
     }
     function clickCreateToggle(){
         var popup = document.getElementById("create-product");
-            popup.classList.toggle('active');
+            popup.classNameList.toggle('active');
         var blur = document.getElementById("blur-action");
-            blur.classList.toggle('active');
+            blur.classNameList.toggle('active');
     }
-    
+    */
+    const [popupUpdateActive, setPopupUpdateActive] = useState(false);
+    const [blurActive, setBlurActive] = useState(false);
+    const [popupCreateActive, setPopupCreateActive] = useState(false);
+    const clickEditToggle = () => {
+        setPopupUpdateActive(!popupUpdateActive);
+        setBlurActive(!blurActive);
+    };
+    const clickCreateToggle = () => {
+        setPopupCreateActive(!popupCreateActive);
+        setBlurActive(!blurActive);
+    };
     return (
         <>
-            <div class="layout-wrapper layout-content-navbar">
-                <div class="layout-container">
+            <div className="layout-wrapper layout-content-navbar">
+                <div className="layout-container">
                     <AdminLeftMenu />
-                    <div class="layout-page">
+                    <div className="layout-page">
                         <AdminHeader />
-                        <div class="content-wrapper" >
+                        <div className="content-wrapper" >
 {/*Content*/}
-                            <div class="container-xxl flex-grow-1 container-p-y" id="blur-action">
-                                <div class="card">
+                            <div className="container-xxl flex-grow-1 container-p-y" style={{filter: blurActive ? "blur(4px)":"none" ,pointerEvents: blurActive ? "none":"auto"}} /*className={blurActive ? "active" : ""}*/ id="blur-action">
+                                <div className="card">
                                     <div style={{display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems:"center" , padding: "10px"}} >
-                                        <div class="col-md-3">
-                                            <form id="searchForm" action="/product/search" style={{display: "flex",flexDirection: "row"}} method="post">
-                                                <input class="form-control" type="text" name="keyword" id="searchTerm" />
-                                                <button class="btn btn-primary btn" style={{marginLeft: "30px"}} onclick="search()">search</button>
-                                            </form>
+                                        <div className="col-md-3">
+                                                <input className="form-control" type="text" placeholder="search here" name="keyword" id="searchTerm" onChange={(e)=>setKeyWord(e.target.value)} onKeyUp={(e)=>handleSearch()} />
                                         </div>
-                                        <button id="addBtn" type="button" class="btn btn-primary" style={{marginRight: "20px"}} onclick="clickCreateToggle()">
+                                        <button id="addBtn" type="button" className="btn btn-primary" /*style={{marginRight: "20px"}}*/ onClick={(e)=>clickCreateToggle()}>
                                             Create
                                         </button>
                                     </div>
-                                    <div class="table-responsive text-nowrap">
-                                        <table class="table">
+                                    <div className="table-responsive text-nowrap">
+                                        <table className="table">
                                             <thead>
                                                 <tr>
                                                     <th>Product Id</th>
@@ -250,60 +406,71 @@ export default function Product() {
                                                     <th>category</th>
                                                     <th>quantity</th>
                                                     <th>Discount Rate</th>
-                                                    <th>Size</th>
-                                                    <th>Status</th>
                                                     <th>Actions</th>
                                                 </tr>
                                             </thead>
-                                            <tbody class="table-border-bottom-0" >
-                                            {listProduct.map((product) => (
+                                            <tbody className="table-border-bottom-0" >
+                                            {listProduct.map((pro) => (
           <tr>
-          <td><i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{product.id}</strong></td>
-          <td>{product.name}</td>
+          <td><i className="fab fa-angular fa-lg text-danger me-3"></i> <strong>{pro.id}</strong></td>
+          <td>{pro.name}</td>
           <td>
-              <ul class="list-unstyled users-list m-0 avatar-group d-flex align-items-center">
+              <ul className="list-unstyled users-list m-0 avatar-group d-flex align-items-center">
                   <li
                       data-bs-toggle="tooltip"
                       data-popup="tooltip-custom"
                       data-bs-placement="top"
-                      class="avatar avatar-xs pull-up"
+                      className="avatar avatar-xs pull-up"
                       title="{product.name}"
                   >
-                      <img src={API_ENDPOINT+product.images} alt="product" class="rounded-square" />
+                      <img src={API_ENDPOINT+ pro.images}  className="rounded-square" />
                   </li>
               </ul>
           </td>
           <td>
-              {product.brand}
+              {pro.brand.name}
           </td>
           <td>
-              {product.price}
+              {pro.price}
           </td>
-          <td>{product.category.name}</td>
-          <td>{product.quantity}</td>
+          <td>{pro.category.name}</td>
+          <td>{pro.quantity}</td>
           <td>
-              {product.discountRate}
+              {pro.discountRate}
           </td>
-          <td style={{display: "flex", flexDirection: "row"}}>
-                  <p style={{fontSize: "12px"}}>num size</p>
+         {/* <td style={{display: "flex", flexDirection: "row"}}>
+            {pro.sizes.map((s)=>(
+                <p style={{fontSize: "12px"}}>{s.size_num}</p>
+            ))}
           </td>
 
-          <td><span class="badge bg-label-primary me-1">Stocking</span></td>
+          <td><span className="badge bg-label-primary me-1">Stocking</span></td>
+            */}
           <td>
-              <div class="dropdown">
-                  <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
-                      <i class="bx bx-dots-vertical-rounded"></i>
+                <a style={{marginLeft:"5px"}} onClick={()=>handleShowProduct(pro.id)}>
+                    <FaEdit color="green" size="20px"/>  
+                </a>
+                <a style={{marginLeft:"15px"}} onClick={()=>handleDeleteProduct(pro.id)}>
+                    <FaTrashAlt color="red" size="20px"/>
+                </a>
+                {/*
+              <div className="dropdown">
+                  <button type="button" className="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                         <FaEdit color="green" size="20px"/>
+                         <FaTrashAlt color="red" size="20px"/>
                   </button>
-                  <div class="dropdown-menu">
-                      <a class="dropdown-item" id="edit_btn" onClick={handleShowProduct(product.id)} href="javascript:void(0);">
-                          <i class="bx bx-edit-alt me-1"></i>
-                          Edit
+                  <div className="dropdown-menu">
+                      <a style={{marginLeft:"5px"}} onClick={()=>handleShowProduct(pro.id)}>
+                    <FaEdit color="green" size="20px"/>  
+                    Edit
                       </a>
-                      <a class="dropdown-item" onclick="handleDelete" href="javascript:void(0);"
-                      ><i class="bx bx-trash me-1"></i> Delete</a
+                      <a className="dropdown-item" onClick={()=>handleDeleteProduct(pro.id)}
+                      ><i className="bx bx-trash me-1"></i> Delete</a
                       >
                   </div>
+                
               </div>
+              */}
           </td>
       </tr>
         ))}                                                                                                            
@@ -316,225 +483,231 @@ export default function Product() {
 
                              {/*update form*/}
    
-                            <form id="updateForm" action="/product/updateProduct" method="post">
-                                <div class="d-flex aligns-items-center justify-content-center card text-left w-50 position-absolute top-50 start-50 translate-middle-x" id="product_edit" style={{marginLeft: "100px",marginTop: "-15%"}} aria-hidden="true">
-                                    <div class="card mb-4">
+                            
+                                <div className="d-flex aligns-items-center justify-content-center card text-left w-50 position-absolute top-50 start-50 translate-middle-x" id="product_edit"  style={{marginLeft: "100px",marginTop: "-15%",visibility: popupUpdateActive ? "visible" : "hidden"}}>
+                                    <div className="card mb-4">
                                         <div style={{display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems:"center"}} >
-                                            <h5 class="card-header">Edit Product</h5>
-                                            <button id="EditBtn" type="button" class="btn btn-danger" style={{marginRight: "20px"}} onclick="clickEditToggle()">Cancel</button>
+                                            <h5 className="card-header">Edit Product</h5>
+                                            <button id="EditBtn" type="button" className="btn btn-danger" style={{marginRight: "20px"}} onClick={(e)=>clickEditToggle()}>Cancel</button>
                                         </div>
-                                        <div class="card-body" style={{marginTop: "-3%"}}>
-                                            <div class="mb-3">
-                                                <label class="form-label">Product Id</label>
+                                        <div className="card-body" style={{marginTop: "-3%"}}>
+                                            <div className="mb-3">
+                                                <label className="form-label">Product Id</label>
                                                 <input
-                                                    class="form-control"
+                                                    className="form-control"
                                                     type="text"
-                                                    id="edit_id"
-                                                    name="id"
-                                                    readonly
-                                                    value={product.id}
+                                                    value = {updateId}
                                                     onChange={(e)=>setUpdateId(e.target.value)}
+                                                    disabled
                                                 />
                                             </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Name Product</label>
+                                            <div className="mb-3">
+                                                <label className="form-label">Name Product</label>
                                                 <input
                                                     type="text"
-                                                    class="form-control"
+                                                    className="form-control"
                                                     placeholder="product name"
                                                     id="edit_name"
                                                     name="name"
-                                                    value={product.name}
+                                                    value = {updateName}
                                                     required="required"
-                                                    onchange={(e)=>setUpdateName(e.target.value)}
+                                                    onChange={(e)=>setUpdateName(e.target.value)}
                                                 />
                                             </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">category</label>
-                                                <select onChange={(e)=>setUpdateCategoryId(e.target.value)} class="form-select" name="category_id" id="edit_category" required="required">                                                    
-                                                {listCategory.map((category)=>{
-                                                        <option value={category.id_category}>category.name</option>
-                                                    })}
+                                            <div className="mb-3">
+                                                <label className="form-label">category</label>
+                                                <select value ={updateCategoryId} onChange={(e)=>setUpdateCategoryId(e.target.value)} className="form-select" name="category_id" id="edit_category" required="required">                                                    
+                                                {listCategory.map((category)=>(
+                                                        <option value={category.id_category}>{category.name}</option>
+                                                    ))}
                                                 </select>
                                             </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Price</label>
+                                            <div className="mb-3">
+                                                <label className="form-label">Price</label>
                                                 <input
                                                     type="number"
                                                     min="0" max="10000"
-                                                    class="form-control"
+                                                    className="form-control"
                                                     placeholder="price"
                                                     id="edit_price"
                                                     name="price"
                                                     required="required"
-                                                    value={product.price}
-                                                    onchange={(e)=>setUpdatePrice(e.target.value)}
+                                                    value={updatePrice}
+                                                    onChange={(e)=>setUpdatePrice(e.target.value)}
                                                 />
                                             </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Discount Rate</label>
+                                            <div className="mb-3">
+                                                <label className="form-label">Discount Rate</label>
                                                 <input
                                                     type="number"
                                                     min="0" max="100"
-                                                    class="form-control"
+                                                    className="form-control"
                                                     placeholder="Discount Rate"
                                                     required="required"
                                                     name="discountRate"
                                                     id="edit_rate"
-                                                    value={product.discountRate}
+                                                    value={updateRate}
                                                     onChange={(e)=>setUpdateRate(e.target.value)}
                                                 />
                                             </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Size:</label>
-                                                {listSize.map((size)=>{
-                                                    <input  name="sizes" type="checkbox" value={size.id}/>
-                                                })}                                                   
+                                            {/*
+                                            <div className="mb-3">
+                                                <label className="form-label">Size:</label>
+                                                {listSize.map((size)=>(
+                                                    <>
+                                                    <input name="sizes" type="checkbox" value={size.id}/>
+                                                    {size.size_num}
+                                                    </>
+                                                ))}                                                   
                                             </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">brand</label>
-                                                <select onChange={(e)=>setUpdateBrand(e.target.value)} class="form-select" name="brand" id="edit_brand" required="required">
-                                                    {listBrand.map((brand)=>{
+                                                */}
+                                            <div className="mb-3">
+                                                <label className="form-label">brand</label>
+                                                <select value={updateBrand} onChange={(e)=>setUpdateBrand(e.target.value)} className="form-select" name="brand" id="edit_brand" required="required">
+                                                    {listBrand.map((brand)=>(
                                                         <option value={brand.id}>{brand.name}</option>
-                                                    })}
+                                                    ))}
                                                 </select>
                                             </div>
                                             
-                                            <div class="mb-3">
-                                                <label class="form-label">quantity</label>
+                                            <div className="mb-3">
+                                                <label className="form-label">quantity</label>
                                                 <input
                                                     type="number" min="0" max="100000"
-                                                    class="form-control"
+                                                    className="form-control"
                                                     placeholder="quantity"
                                                     id="edit_quantity"
                                                     name="quantity"
-                                                    value={product.quantity}
+                                                    value={updateQuantity}
                                                     required="required"
                                                     onChange={(e)=>setUpdateQuantity(e.target.value)}
                                                 />
                                             </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">description</label>
-                                                <textarea value={product.description} onChange={(e)=>setUpdateDescription(e.target.value)} name="description" class="form-control" id="edit_description" rows="3" required="required"></textarea>
+                                            <div className="mb-3">
+                                                <label className="form-label">description</label>
+                                                <textarea value={updateDescription} onChange={(e)=>setUpdateDescription(e.target.value)} name="description" className="form-control" id="edit_description" rows="3" required="required"></textarea>
                                             </div>
-                                            <div class="row mt-3">
-                                                <div class="d-grid gap-2 col-lg-6 mx-auto">
-                                                    <button class="btn btn-primary btn-lg" type="button" onClick={handleUpdateProduct()}>Save</button>
+                                            <div className="row mt-3">
+                                                <div className="d-grid gap-2 col-lg-6 mx-auto">
+                                                    <button className="btn btn-primary btn-lg"onClick={()=>handleUpdateProduct()}>Save</button>
                                                 </div>
-                                                <div class="d-grid gap-2 col-lg-6 mx-auto">
-                                                    <button class="btn btn-danger btn-lg" type="button" onClick={clickEditToggle()}>Cancel</button>
+                                                <div className="d-grid gap-2 col-lg-6 mx-auto">
+                                                    <button className="btn btn-danger btn-lg" type="button" onClick={()=>clickEditToggle()}>Cancel</button>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </form>
+                            
 
-                            <form id="saveForm" action="/product/saveProduct" method="post" enctype="multipart/form-data">
-                                <div class="d-flex aligns-items-center justify-content-center card text-left w-50 position-absolute top-50 start-50 translate-middle-x" id="create-product" style={{marginLeft: "100px", marginTop: "-15%"}} aria-hidden="true">
-                                    <div class="card mb-4">
+                           
+                                <div className="d-flex aligns-items-center justify-content-center card text-left w-50 position-absolute top-50 start-50 translate-middle-x" id="create-product" style={{marginLeft: "100px", marginTop: "-15%",visibility: popupCreateActive ? "visible" : "hidden"}} aria-hidden="true">
+                                    <div className="card mb-4">
                                         <div style={{display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems:"center"}}>
-                                            <h5 class="card-header">Create Product</h5>
-                                            <button id="CreateBtn" type="button" class="btn btn-danger" style={{marginRight: "20px"}} onclick={clickCreateToggle()}>Cancel</button>
+                                            <h5 className="card-header">Create Product</h5>
+                                            <button id="CreateBtn" type="button" className="btn btn-danger" style={{marginRight: "20px"}} onClick={()=>clickCreateToggle()}>Cancel</button>
                                         </div>
-                                        <div class="card-body" style={{marginTop: "-3%"}}>
-                                            <div class="mb-3">
-                                                <label class="form-label">Name Product</label>
+                                        <div className="card-body" style={{marginTop: "-3%"}}>
+                                            <div className="mb-3">
+                                                <label className="form-label">Name Product</label>
                                                 <input
                                                     type="text"
-                                                    class="form-control"
+                                                    className="form-control"
                                                     placeholder="product name"
                                                     required="required"
                                                     name="name"
                                                     onChange={(e)=>setSaveName(e.target.value)}
                                                 />
                                             </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">category</label>
-                                                <select onChange={(e)=>setSaveCategoryId(e.target.value)} name="category_id" class="form-select" required="required">
-                                                    {listCategory.map((category)=>{
-                                                        <option value={category.id_category}>category.name</option>
-                                                    })}
+                                            <div className="mb-3">
+                                                <label className="form-label">category</label>
+                                                <select onChange={(e)=>setSaveCategoryId(e.target.value)} name="category_id" className="form-select" required="required">
+                                                    {listCategory.map((cate)=>(
+                                                        <option value={cate.id_category}>{cate.name}</option>
+                                                    ))}
                                                 </select>
                                             </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Upload Image</label>
-                                                <input name="images" class="form-control" onChange={handleChangeImage()} type="file" id="formFileMultiple" multiple />
+                                            <div className="mb-3">
+                                                <label className="form-label">Upload Image</label>
+                                                <input name="images" className="form-control" onChange={(e)=>handleChangeImage(e)} type="file" id="formFileMultiple" multiple />
                                             </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Price</label>
+                                            <div className="mb-3">
+                                                <label className="form-label">Price</label>
                                                 <input
                                                     type="number"
                                                     min="0" max="10000000"
-                                                    class="form-control"
+                                                    className="form-control"
                                                     placeholder="price"
                                                     required="required"
                                                     name="price"
                                                     onChange={(e)=>setSavePrice(e.target.value)}
                                                 />
                                             </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Size:</label>
-                                                {listSize.map((size)=>{
-                                                    <input name="sizes[]" type="checkbox" value={size.id} onChange={handleChangeSize() }/>
-                                                })}                                                   
+                                            <div className="mb-3">
+                                                <label className="form-label">Size:</label>
+                                                {listSize.map((size)=>(
+                                                    <>
+                                                    <input type="checkbox" value={size.id} onChange={(e)=> handleChangeSize(e) }/>
+                                                    {size.size_num}
+                                                    </>
+                                                ))}                                                   
                                             </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">brand</label>
-                                                <select onChange={(e)=>setSaveBrand(e.target.value)} name="brand" class="form-select" required="required">
-                                                    {listBrand.map((brand)=>{
-                                                        <option value={brand.id}>{brand.name}</option>
-                                                    })}
+                                            <div className="mb-3">
+                                                <label className="form-label">brand</label>
+                                                <select onChange={(e)=>setSaveBrand(e.target.value)} name="brand" className="form-select" required="required">
+                                                    {listBrand.map((b)=>(
+                                                        <option value={b.id} >{b.name}</option>
+                                                    ))}
                                                 </select>
                                             </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">quantity</label>
+                                            <div className="mb-3">
+                                                <label className="form-label">quantity</label>
                                                 <input
                                                     type="number" min="0" max="100000"
-                                                    class="form-control"
+                                                    className="form-control"
                                                     placeholder="quantity"
                                                     required="required"
                                                     name="quantity"
-                                                    onChange={(e)=>setSaveDescription(e.target.value)}
+                                                    onChange={(e)=>setSaveQuantity(e.target.value)}
                                                 />
                                             </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Discount Rate</label>
+                                            <div className="mb-3">
+                                                <label className="form-label">Discount Rate</label>
                                                 <input
                                                     type="number" min="0" max="100"
-                                                    class="form-control"
+                                                    className="form-control"
                                                     placeholder="Discount Rate"
                                                     required="required"
                                                     name="discountRate"
                                                     onChange={(e)=>setSaveRate(e.target.value)}
                                                 />
                                             </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">description</label>
-                                                <textarea onChange={(e)=>setSaveDescription(e.target.value)} name="description" class="form-control" rows="3" required="required"></textarea>
+                                            <div className="mb-3">
+                                                <label className="form-label">description</label>
+                                                <textarea onChange={(e)=>setSaveDescription(e.target.value)} name="description" className="form-control" rows="3" required="required"></textarea>
                                             </div>
-                                            <div class="row mt-3">
-                                                <div class="d-grid gap-2 col-lg-6 mx-auto">
-                                                    <button class="btn btn-primary btn-lg" value="Submit" type="submit" onClick={handleSaveProduct()} >Save</button>
+                                            <div className="row mt-3">
+                                                <div className="d-grid gap-2 col-lg-6 mx-auto">
+                                                    <button className="btn btn-primary btn-lg" type="button" onClick={()=>handleSaveProduct()} >Save</button>
                                                 </div>
-                                                <div class="d-grid gap-2 col-lg-6 mx-auto">
-                                                    <button class="btn btn-danger btn-lg" type="button" onclick={clickCreateToggle()}>Cancel</button>
+                                                <div className="d-grid gap-2 col-lg-6 mx-auto">
+                                                    <button className="btn btn-danger btn-lg" type="button" onClick={()=>clickCreateToggle()}>Cancel</button>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </form>
+                            
 
-                            <div class="content-backdrop fade"></div>
+                            <div className="content-backdrop fade"></div>
                         </div>
 
                     </div>
 
                 </div>
+            
 
-
-                <div class="layout-overlay layout-menu-toggle"></div>
+                <div className="layout-overlay layout-menu-toggle"></div>
             </div>
         </>
     );
