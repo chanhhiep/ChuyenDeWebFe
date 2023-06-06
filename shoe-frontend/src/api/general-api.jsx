@@ -6,6 +6,7 @@ const RESOURCE = "api";
 const BASE_URL = `${API_ENDPOINT}/${RESOURCE}`;
 //authentication
 export const loginHandel = (data) => {
+    console.log(`${BASE_URL}/login`);
     return axiosService.post(`${BASE_URL}/login`,data);
 };
 export const registerHandel = (data) => {
@@ -63,6 +64,10 @@ export const getAllProduct = () => {
     console.log(`${BASE_URL}/product`);
     return axiosService.get(`${BASE_URL}/product`);
 };
+export const getProductById = (id) => {
+    //console.log(`${BASE_URL}/product`);
+    return axiosService.get(`${BASE_URL}/products/{id}`);
+};
 export const getProductByCategory = (id) => {
     return axiosService.get(`${BASE_URL}/api/product/category/{id}`);
 };
@@ -91,5 +96,5 @@ export const getAllUser = () => {
     return axiosService.get(`${BASE_URL}/api/users/getAll`);
 };
 export const getProfile = () => {
-    return axiosService.get(`${BASE_URL}/api/users/profile`);
+    return axiosService.get(`${BASE_URL}/users/profile`);
 };

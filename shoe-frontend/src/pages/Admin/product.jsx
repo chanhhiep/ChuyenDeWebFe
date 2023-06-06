@@ -13,27 +13,12 @@ import AdminLeftMenu from "../../parts/AdminLeftMenu";
 import { AdminApi,getProductList,deleteProduct,updateProduct,showProduct,saveProduct,getCategoryList,getBrandList,getSizeList,searchProduct } from '../../api/admin-api';
 import { API_ENDPOINT } from '../../constants';
 import { toastError, toastSuccess } from '../../services/ToastService';
+import axios from "axios";
 export default function Product() {
     const [loading, setLoading] = useState(false);
     const [listProduct, setListProduct] = useState([]);
     const [listBrand ,setListBrand] = useState([]);
-    const [listCategory,setListCategory] = useState([
-        /*
-        {
-            id:""
-            ,category:{id_category:"",img:"",name:"",parent_id:""}
-            ,name:""
-            ,price:""
-            ,discountRate:""
-            ,images:""
-            ,description:""
-            ,brand:{id:"",name:"",createDate:"",updateDate:""}
-            ,size:[]
-            ,quantity:""
-            ,createDate:""
-            ,updtaeDate:""
-        }*/
-    ]);
+    const [listCategory,setListCategory] = useState([]);
     const [listSize,setListSize] = useState([]);
     const [product, setProduct] = useState({
         id:""
@@ -74,6 +59,7 @@ export default function Product() {
     // const [updateSize, setUpdateSize] = useState([]);
      const [updateQuantity, setUpdateQuantity] = useState("");
     //
+    const accesstoken = localStorage.getItem('accesstoken')
     const handleChangeSize = (event) => {
         const value = event.target.value;
         // Add the new value to the state variable.
@@ -84,31 +70,12 @@ export default function Product() {
             setSaveImage(event.target.files[0]);
         }
     }
-    //getData
-    // const productData = async () => {
-    //     try {
-    //       dispatch(setLoading(true));
-    //       const { data } = await AdminApi.getListProduct();
-    //       const { dataBrand } = await AdminApi.getListBrand();
-    //       const { dataCategory } = await AdminApi.getListCategory();
-    //       const { dataSize } = await AdminApi.getListSize();
-    //       //const { data: dataCategory } = await AdminApi.getListProduct();
-    //       setDataListProduct(data);
-    //       setListBrand(dataBrand);
-    //       setListCategory(dataCategory);
-    //       setListSize(dataSize);
-    //       //setDataListBookCategory(dataCategory);
-    //     } catch (error) {
-    //     } finally {
-    //       dispatch(setLoading(false));
-    //     }
-    //   };
-    //   useEffect(() => {
-    //     productData();
-    //   }, []);
+  
     useEffect(() => {
         const refetch = (async () => {
-            await getProductList().then((res) => {
+            //const api = `${API_ENDPOINT}/api/product/category/{idCate}`
+            await axios.get(`${API_ENDPOINT}/admin/product`, { headers: {"Authorization" : `Bearer ${accesstoken}`} })
+            .then((res) => {
                 const { data } = res;
                 console.log(data);
                 let deserializedArray = [];
@@ -117,16 +84,18 @@ export default function Product() {
                 setListProduct(deserializedArray);
                 console.log(listProduct);
             });
-            await getCategoryList().then((res) => {
+            await axios.get(`${API_ENDPOINT}/admin/category`, { headers: {"Authorization" : `Bearer ${accesstoken}`} })
+                .then((res) => {
                 const { data } = res;
                 console.log(data);
-                /*let deserializedArray = [];
+                let deserializedArray = [];
                 Object.values(res.data).map((item) => deserializedArray.push(item))
                 //setListProduct([...listProduct, res]);*/
-                setListCategory(data);
+                setListCategory(deserializedArray);
                 console.log(listCategory);
             });
-            await getBrandList().then((res) => {
+            await axios.get(`${API_ENDPOINT}/admin/brand`, { headers: {"Authorization" : `Bearer ${accesstoken}`} })
+                .then((res) => {
                 const { data } = res;
                 console.log(data);
                 /*
@@ -136,16 +105,18 @@ export default function Product() {
                 setListBrand(data);
                 console.log(listBrand);
             });
+            /*
             await getSizeList().then((res) => {
                 const { data } = res;
                 console.log(data);
-                /*
+                
                 let deserializedArray = [];
                 Object.values(res.data).map((item) => deserializedArray.push(item))
-                //setListProduct([...listProduct, res]);*/
+                //setListProduct([...listProduct, res]);
                 setListSize(data);
                 console.log(listSize);
             });
+            */
             return;
         });
         //cleanup function
@@ -159,7 +130,8 @@ export default function Product() {
     function handleShowProduct(id){
         //toastSuccess("Show successfully");
         
-        showProduct(id).then((res)=>{
+        axios.get(`${API_ENDPOINT}/admin/product/showProduct/${id}`, { headers: {"Authorization" : `Bearer ${accesstoken}`} })
+                .then((res)=>{
             const {data} = res;
             //setProduct(data);
             setUpdateQuantity(data.quantity);
@@ -185,7 +157,8 @@ export default function Product() {
     //   })
     }
     function handleDeleteProduct(id) {
-        deleteProduct(id).then((res) => {
+        axios.delete(`${API_ENDPOINT}/admin/product/deleteProduct/${id}`, { headers: {"Authorization" : `Bearer ${accesstoken}`} })
+                .then((res) => {
             if (res.data === true) {
                 //toastSuccess("Delete successfully");
                 //removeItem();
@@ -238,7 +211,8 @@ export default function Product() {
             quantity: updateQuantity,
             sizes:[]
         }
-        updateProduct(data).then((res)=>{
+        axios.put(`${API_ENDPOINT}/admin/product/updateProduct`, data, { headers: {"Authorization" : `Bearer ${accesstoken}`} })
+        .then((res)=>{
                 toastSuccess("Update successfully");
                 //removeItem();
                 console.log("success");
@@ -273,14 +247,11 @@ export default function Product() {
             toastError("Thương Hiệu Không Được Để Trống");
             return;
         }
-        if (saveSize.length === 0) {
-            toastError("Cỡ Giày Không Được Để Trống");
-            return;
-        }
         if (saveImage === null) {
             toastError("Hãy Thêm Ít Nhất Một Hình Ảnh");
             return;
         }
+       
         const formData = new FormData();
         const data ={
             name: saveName,
@@ -289,21 +260,43 @@ export default function Product() {
             discountRate: saveRate,
             description: saveDescription,
             quantity: saveQuantity,
-            brand: saveBrand,
-            sizes: saveSize
+            brand: saveBrand
         }
         formData.append("product", JSON.stringify(data));
         formData.append("images",saveImage)
-        saveProduct(formData).then((res)=>{  
+        axios.post(`${API_ENDPOINT}/admin/product/saveProduct`, formData, { headers: {"Authorization" : `Bearer ${accesstoken}`} })
+        .then((res)=>{  
                 toastSuccess("Save successfully");
                 //removeItem();
                 console.log("success");
         })
+       
+       /*
+        const uploadImage = async e => {
+            const files = e.target.files
+            const data = new FormData()
+            data.append('file', files[0])
+            data.append('upload_preset', 'darwin')
+            setLoading(true)
+            const res = await fetch(
+              '	https://api.cloudinary.com/v1_1/dihifeicm/image/upload',
+              {
+                method: 'POST',
+                body: data
+              }
+            )
+            const file = await res.json()
+            setImage(file.secure_url)
+            setLoading(false)
+          }
+          */
+        
     }
     const[keyword,setKeyWord] = useState("");
     function handleSearch() {
         if(keyword === ""){
-            getProductList().then((res) => {
+            axios.get(`${API_ENDPOINT}/admin/product`, { headers: {"Authorization" : `Bearer ${accesstoken}`} })
+                .then((res) => {
                 const { data } = res;
                 setListProduct(data);
                 console.log(listProduct);
@@ -313,7 +306,8 @@ export default function Product() {
             const data ={
                 keywords : keyword
             }
-            searchProduct(data).then((res)=>{
+            axios.post(`${API_ENDPOINT}/admin/product/search`,data, { headers: {"Authorization" : `Bearer ${accesstoken}`} })
+                .then((res)=>{
                 const {data} = res;
                 setListProduct(data);
             })
@@ -423,7 +417,7 @@ export default function Product() {
                       className="avatar avatar-xs pull-up"
                       title="{product.name}"
                   >
-                      <img src={API_ENDPOINT+ pro.images}  className="rounded-square" />
+                      <img src={API_ENDPOINT + product?.image}  className="rounded-square" />
                   </li>
               </ul>
           </td>
@@ -589,10 +583,10 @@ export default function Product() {
                                             </div>
                                             <div className="row mt-3">
                                                 <div className="d-grid gap-2 col-lg-6 mx-auto">
-                                                    <button className="btn btn-primary btn-lg"onClick={()=>handleUpdateProduct()}>Save</button>
+                                                    <button className="btn btn-primary"onClick={()=>handleUpdateProduct()}>Save</button>
                                                 </div>
                                                 <div className="d-grid gap-2 col-lg-6 mx-auto">
-                                                    <button className="btn btn-danger btn-lg" type="button" onClick={()=>clickEditToggle()}>Cancel</button>
+                                                    <button className="btn btn-danger " type="button" onClick={()=>clickEditToggle()}>Cancel</button>
                                                 </div>
                                             </div>
                                         </div>
