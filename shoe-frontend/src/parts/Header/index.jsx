@@ -1,6 +1,51 @@
 import "./header.css";
 import { FaShoppingCart,FaHeart,FaList } from 'react-icons/fa';
+import React, { useEffect, useRef, useState } from "react";
+import { toastError, toastSuccess } from '../../services/ToastService';
+import { API_ENDPOINT } from "../../constants";
+import { Link } from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
+import axios from "axios";
 export default function Header(props) {
+    const [listProduct, setListProduct] = useState([]);
+    const [listCategory,setListCategory] = useState([]);
+    const user = JSON.parse(localStorage.getItem("user"));
+    const accesstoken = localStorage.getItem('accesstoken');
+    function handleLogout() {
+        localStorage.clear();
+        window.location = '/login';
+    }
+    useEffect(() => {
+        const refetch = (async () => {
+            axios.get(`${API_ENDPOINT}/api/category/getAll`, { headers: {"Authorization" : `Bearer ${accesstoken}`} })
+            .then(res => {       
+                const { data } = res;
+                console.log(data);
+                setListCategory(data);
+            });
+        });
+        //cleanup function
+        return () => {
+            refetch();
+        };
+    }, []);
+    const[keyword,setKeyWord] = useState("");
+    const[listResult,setListResult] = useState([]);
+    function handleSearch() {
+        if(keyword === ""){
+            return;
+        }
+        else{
+            const data = {
+                keyword : keyword
+            }
+            axios.post(`${API_ENDPOINT}/admin/product/search`,data, { headers: {"Authorization" : `Bearer ${accesstoken}`} })
+                .then((res)=>{
+                const {data} = res;
+                setListProduct(data);
+            })
+        }
+    }
     return (
         <>
         
@@ -11,24 +56,24 @@ export default function Header(props) {
             <div className="texttop">
                 <ul className="text">
                     <li><p>Free ship</p> <span>Toàn quốc</span></li>
-                    <li><p>Check hàng</p> <span>Mới thanh toán</span></li>
+                    <li><Link to={`/OrderHistory`}><p>Lich Su Don Hang</p> <span>Mới thanh toán</span></Link></li>
                     <li><p>Bảo hành</p> <span>Trong 6 tháng</span></li>
                 </ul>
                 <ul className="top">
                     <li>
-                        <a href="" title="Danh sách yêu thích">
+                        <Link to={`/WishList`} title="Danh sách yêu thích">
                             <div className="img">
                                 <img src="https://cdn3.iconfinder.com/data/icons/e-commerce-3-2/380/8-1024.png" alt="Cập nhật danh sách yêu thích" width="24"
                                      height="24"/></div>
                             <p>Wish List</p>
-                        </a>
+                        </Link>
                     </li>
 
                 </ul>
-                <a href="gio-hang.html" id="cart" style={{display:"flex",flexDirection:"column",justifyContent:"center",alignItem:"center"}}>
+                <Link to={`/Cart`} id="cart" style={{display:"flex",flexDirection:"column",justifyContent:"center",alignItem:"center"}}>
                     <FaShoppingCart width="30px" height="30px"/>
                     <span>( 0 sản phẩm )</span>
-                </a>
+                </Link>
             </div>
             <div classNameName="clear"></div>
             <div className="header">
@@ -41,43 +86,48 @@ export default function Header(props) {
             
                 <div className="search">
                     <form action="tim-kiem" method="get" target="_top">
-                        <input type="text" name="key" placeholder="Nhập gợi ý từ khóa..."/>
+                        <input type="text" name="key" onChange={(e)=>setKeyWord(e.target.value)} placeholder="Nhập gợi ý từ khóa..."/>
                         {/*<input type="submit" value="Tìm kiếm"/>*/}
-                        <ul className="search_result"></ul>
+                        <ul className="search_result">
+                            {listResult.map((result) => (
+                                <li>
+                                    <Link to={`/DetailsPage/${result.id}`}>{result.name}</Link>
+                                </li>
+                            ))}
+                        </ul>
                     </form>
                 </div>
-                <div class="account" style={{marginRight:"40px"}}>                
+                {user ?
+                             <>
+                             <div class="account" style={{marginRight:"40px"}}>
+                             <Link to="/Login"><p>Xin chào, user.email!</p></Link>
+                                <button onClick={(e)=>handleLogout()}>Đăng xuất</button>
+                             </div>
+                                </>
+                                :
+                                <>
+                                <div class="account" style={{marginRight:"40px"}}>                
                         <a href="/login" title="Đăng ký &amp; tạo tài khoản">
                             <img src="https://tse2.mm.bing.net/th?id=OIP.rVggrpUvs-YAUExsD7c-EAHaHa&pid=Api&P=0&h=180" alt="Tài khoản thành viên" height="36" width="36"
-                                 class="default"/><span>Đăng ký / đăng nhập</span>
+                                 class="default"/><span><Link to="/Login" role="button">Đăng ký</Link>/ <Link to="/Register" role="button" >đăng nhập</Link></span>
                             <p class="capdo"><i>Nhận ngay ưu đãi</i></p>
                         </a>   
                 </div>
+                                </>
+                            }
+                
                 
                 <a className="togglemenu">Menu</a>
                 <nav className="subnav">
                     <ul className="navigation">
-                        <li className="category" href="product.html"
-                            title="Shop giày thể thao Adidas nam nữ mới nhất 2022"><a>Adidas</a></li>
-
-                        <li className="category" href="product.html"
-                            title="Giày Thể Thao Nike Chính Hãng Nam Nữ Đẹp Giá Giảm 25%"><a>Nike</a></li>
-
-                        <li className="category" href="product.html"
-                            title="Giày Sneaker MLB Korea Nam Nữ Mới Giá Rẻ Giảm 25%"><a>MLB Korea</a></li>
-
-                        <li className="category" href="product.html"
-                            title="Giày New Balance Chất Lượng Siêu Cấp Giá Rẻ Giảm 20%"><a>New Balance</a></li>
-
-                        <li className="category" href="product.html"
-                            title="Giày Sneaker McQueen Mới Nhất | Chuẩn Đẹp Giảm 25%"><a>McQueen</a></li>
-
-                        <li className="category" href="product.html"
-                            title="Giày Converse Vietnam: Chuck Taylor 1970s Nam Nữ Giá Rẻ"><a>Converse</a></li>
-
-                        <li className="category" href="product.html"
-                            title="Store Giày Vans Việt Nam: Old Skool, Slip On, Vault, classNameic, Marvel"><a>VANS</a>
-                        </li>
+                    {listCategory.map((category) => (
+                        <>
+                        <li className="category" href="/"
+                        title=""><a>Trang Chủ</a></li>
+                         <li className="category" href="product.html"
+                         title={category.name}><a>Adidas</a></li>
+                         </>
+                    ))}
 
                         <ul className="linknews">
                             <li><a href="#" title="Thông tin giới thiệu">Giới thiệu</a></li>
@@ -96,67 +146,14 @@ export default function Header(props) {
         <nav id="menu" className="menu">
             <div className="container">
                 <ul>
-                    <li><a href="index.html" title="Giới thiệu"><span className="brand"><img
-                            src="images/gioi-thieu.png" alt="Giới thiệu" width="33" height="24"/></span>Trang chủ</a>
+                    <li><Link to="/" title="Giới thiệu"><span className="brand"><img
+                            src="images/gioi-thieu.png" alt="Giới thiệu" width="33" height="24"/></span>Trang chủ</Link>
                     </li>
-                    <li><a href="product.html" title="Adidas"><span className="brand"><img
-                            src="images/adidas.png" alt="Adidas" width="40" height="24"/></span>Adidas</a>
-                        <ul>
-                            <li><a href="product.html" title="Ultra Boost">Ultra Boost</a></li>
-                            <li><a href="product.html" title="Yeezy">Yeezy</a></li>
-                            <li><a href="product.html" title="ZX 5K Boost">ZX 5K Boost</a></li>
-                            <li><a href="product.html" title="Alpha Magma">Alpha Magma</a></li>
-                            <li><a href="product.html" title="EQT+">EQT+</a></li>
-                            <li><a href="product.html" title="ZX 2K Boost">ZX 2K Boost</a></li>
-                            <li><a href="product.html" title="Alphabounce">Alphabounce</a></li>
-                            <li><a href="product.html" title="X9000L4">X9000L4</a></li>
-                            <li><a href="product.html" title="Stan Smith">Stan Smith</a></li>
-                            <li><a href="product.html" title="Prophere">Prophere</a></li>
-                            <li><a href="product.html" title="Superstar">Superstar</a></li>
-                            <li><a href="product.html" title="NMD Humanrace">NMD Humanrace</a></li>
-                            <li><a href="product.html" title="Ozweego">Ozweego</a></li>
-                            <li><a href="product.html" title="Adidas Yung">Adidas Yung</a></li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="product.html" title="Nike"><span className="brand">
-                        <img src="images/nike.png" alt="Nike" width="40" height="24"/></span>Nike</a>
-                        <ul>
-                            <li><a href="product.html" title="SB Dunk">SB Dunk</a></li>
-                            <li><a href="product.html" title="Jordan">Jordan</a></li>
-                            <li><a href="product.html" title="Air Force 1">Air Force 1</a></li>
-                            <li><a href="product.html" title="Blazer">Blazer</a></li>
-                            <li><a href="product.html" title="Pegasus">Pegasus</a></li>
-                            <li><a href="product.html" title="Air Max">Air Max</a></li>
-                            <li><a href="product.html" title="Joyride">Joyride</a></li>
-                            <li><a href="product.html" title="M2K">M2K</a></li>
-                            <li><a href="product.html" title="Uptempo">Uptempo</a></li>
-                        </ul>
-                    </li>
-                    <li><a href="product.html" title="MLB Korea"><span className="brand">
-                        <img src="images/mlb.png" alt="MLB Korea" width="40" height="24"/></span>MLB Korea</a>
-                    </li>
-                    <li><a href="product.html" title="New Balance"><span className="brand"><img
-                            src="images/new-balance.png" alt="New Balance" width="40" height="24"/></span>New
-                        Balance</a>
-                        <ul>
-                            <li><a href="product.html" title="New Balance 300">New Balance 300</a></li>
-                            <li><a href="product.html" title="New Balance 550">New Balance 550</a></li>
-                            <li><a href="product.html" title="New Balance 574">New Balance 574</a></li>
-                        </ul>
-                    </li>
-                    <li><a href="product.html" title="McQueen"><span className="brand"><img
-                            src="images/mcqueen.png" alt="McQueen" width="40" height="24"/></span>McQueen</a>
-                    </li>
-                    <li><a href="product.html" title="Converse"><span className="brand"><img
-                            src="images/converse.png" alt="Converse" width="40" height="24"/></span>Converse</a>
-                    </li>
-                    <li><a href="product.html" title="VANS"><span className="brand">
-                        <img src="images/vans.png" alt="VANS" width="40" height="24"/></span>VANS</a>
-                    </li>
-                    <li><a href="product.html" title="Sale Off" className="sale"><span className="brand"><img
-                            src="images/sale-off.png" alt="Sale Off" width="40" height="24"/></span>Sale Off</a>
-                    </li>
+                    {listCategory.map((category) => (
+                        <li><Link to={`/ProductPage/${category.category_id}`} ><span className="brand"><img
+                        src={category.images} alt="Adidas" width="40" height="24"/></span>{category.name}</Link>         
+                        </li>
+                    ))}
                 </ul>
             </div>
         </nav>
