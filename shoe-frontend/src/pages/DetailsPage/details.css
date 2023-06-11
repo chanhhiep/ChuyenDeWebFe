@@ -20,9 +20,6 @@ img {
     max-width: 100%
 }
 
-img:not(.initial) {
-    transition: opacity 2s;
-}
 
 img.initial, img.loaded, img.error {
     opacity: 1;
@@ -37,9 +34,6 @@ img:not([src]) {
     position: relative
 }
 
-.breadandfilter, .infosp .brand, .infosp .intocart, .infosp .ten, .infosp input.buynow, .listsp li h3, .listsp li span a, .listsp_1 li h3, .listsp_1 li span a, .menumb a div, .navigation .category a, .ribbon span, .sub_category li a {
-    text-transform: uppercase
-}
 .listsp::after, .listsp_1::after {
     display: block
 }
@@ -275,7 +269,6 @@ img:not([src]) {
     position: absolute;
     background: #efefef;
     opacity: 0.9;
-    text-transform: uppercase;
     font-weight: bold;
     top: 50%;
     transform: translateY(-50%);
@@ -387,9 +380,7 @@ img:not([src]) {
     text-transform: none
 }
 
-.titborder p, .titlehome h2, .titlesale p, footer .col p, footer .phot b, h2.titlenews {
-    text-transform: uppercase
-}
+
 .cssdetail iframe, .cssdetail img, .cssdetail video, .hinhsp img {
     max-width: 100%
 }
@@ -425,9 +416,7 @@ img:not([src]) {
 
 }
 
-.breadandfilter, .infosp .ten, .infosp .brand, .infosp .intocart, .infosp input.buynow, .infosp.wishlist {
-    text-transform: uppercase;
-}
+
 
 .infosp a.rew {
     display: inline-block;
@@ -491,14 +480,6 @@ a {
     text-decoration: none;
 }
 
-#setPrice {
-    float: left;
-}
-
-#setPrice p {
-    float: left;
-    margin-top: 15px;
-}
 
 .infosp p.price {
     font-size: 26px;
@@ -571,7 +552,6 @@ b, strong {
 
 .choosesize p {
     font-weight: 400;
-    text-transform: uppercase;
     margin: 0;
     margin-bottom: 10px;
     font-size: 14px;
@@ -734,7 +714,6 @@ ul.ulsize li {
     font-weight: 400;
     height: 41px;
     line-height: 22px;
-    text-transform: uppercase
 }
 
 .listsp_normal li h3:hover a {
@@ -771,7 +750,6 @@ ul.ulsize li {
     position: relative;
     padding-right: 7px;
     font-size: 13px;
-    text-transform: uppercase;
     font-weight: 100
 }
 
@@ -1260,4 +1238,19 @@ input.star:checked ~ label.star:before {
     position: absolute;
     top: -6px;
     z-index: -1;
+}
+
+@media screen and (max-width: 600px) {
+    .infosp{
+        width: 80%;
+    }
+    .group-btn{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 12px;
+    }
+    .expan{
+        width: 80%;
+    }
 }

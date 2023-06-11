@@ -1,7 +1,4 @@
-.container:after, .container:before {
-    display: table;
-    content: " "
-}
+
 
 *, :after, :before {
     box-sizing: border-box;
@@ -11,20 +8,6 @@
     position: relative
 }
 
-a, abbr, acronym, address, applet, article, aside, audio, big, blockquote, body, button, canvas, caption, center, cite, code, dd, del, details, dfn, dl, dt, fieldset, figcaption, figure, font, footer, form, h1, h2, h3, h4, h5, h6, header, hgroup, html, img, input, ins, kbd, label, legend, li, menu, nav, object, ol, p, pre, q, s, samp, section, select, small, strike, sub, summary, sup, textarea, tfoot, tt, u, ul, var, video {
-    font-family: inherit;
-    font-size: 100%;
-    font-weight: inherit;
-    font-style: inherit;
-    line-height: inherit;
-    vertical-align: baseline;
-    border: 0;
-    outline: 0;
-    padding: 0;
-    margin: 0;
-    color: #333;
-    zoom: 1
-}
 
 body {
     font-family: 'Roboto Condensed', sans-serif;
@@ -118,7 +101,7 @@ img:not([src]) {
     overflow: hidden;
     border-top: 0;
     border-right: 0;
-    float: left
+    float: left;
 }
 
 .head .texttop ul.text li {
@@ -155,7 +138,7 @@ img:not([src]) {
 }
 
 .head .texttop ul.top li {
-    padding: 5px 15px;
+    padding: 7px 15px;
     min-width: 100px;
     float: left;
     border-right: 1px solid #eee
@@ -164,7 +147,7 @@ img:not([src]) {
 .head .texttop ul.top li p {
     color: #fff;
     text-align: center;
-    text-transform: uppercase;
+  
     font-weight: 400;
     font-size: 13px
 }
@@ -172,14 +155,14 @@ img:not([src]) {
 .head a#cart {
     position: relative;
     display: block;
-    background: #e77e24;
+    background: #b15607;
     margin-left: 10px;
     width: 95px;
     border-bottom-right-radius: 5px;
     border-bottom-left-radius: 5px;
     height: 58px;
     float: right;
-    color: #fff
+    color: #ffffff
 }
 
 .head a#cart i {
@@ -197,8 +180,6 @@ img:not([src]) {
 }
 
 .header .account {
-    float: right;
-    margin: 50px 0 0 20px;
     font-weight: bold;
     font-size: 14px;
     cursor: pointer;
@@ -339,15 +320,13 @@ header {
 }
 
 header .logo {
-    float: left;
-    margin-top: -10px;
     position: relative;
     overflow: hidden;
 }
 
 header .logo img {
-    height: 150px;
-    margin-top: 20px
+    height: 70px;
+    width: 120px;
 }
 
 header .logomb {
@@ -391,24 +370,16 @@ input[type="text"], input[type="tel"], input[type="email"], input[type="password
     padding: 10px;
 }
 
-input[type="submit"] {
-    background: none repeat scroll 0 0 #5a88ca;
-    border: medium none;
-    color: #fff;
-    padding: 11px 20px;
-    text-transform: uppercase;
-}
+
 
 .search {
-    float: right;
     width: 488px;
-    padding-top: 50px;
-    margin-bottom: 15px
+    z-index: 99;
 }
 
 .search form {
     width: 100%;
-    height: 36px;
+    height: 40px;
     position: relative
 }
 
@@ -580,9 +551,7 @@ nav.menu ul ul ul li a {
     text-transform: capitalize
 }
 
-.breadandfilter, .infosp .brand, .infosp .intocart, .infosp .ten, .infosp input.buynow, .listsp li h3, .listsp li span a, .listsp_1 li h3, .listsp_1 li span a, .menumb a div, .navigation .category a, .ribbon span, .sub_category li a {
-    text-transform: uppercase
-}
+
 
 nav.menu ul ul ul li:hover a {
     color: #e77e24
@@ -711,7 +680,7 @@ b, strong {
     font-weight: 400;
 }
 
-
+/* 
 .search_result {
     display: none;
     position: absolute;
@@ -771,4 +740,64 @@ b, strong {
 
 .search_result li a:hover {
     color: #00a300
-}
+} */
+/* Search box */
+.input-group {
+    width: 100%;
+  }
+  
+  .form-control {
+    border-radius: 0;
+    border: 1px solid #ccc;
+    padding: 10px;
+    font-size: 16px;
+  }
+  
+  .input-group-append button {
+    border-radius: 0;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    color: #333;
+    font-size: 16px;
+    padding: 10px 15px;
+  }
+  
+  /* Search results */
+  #search-results {
+    max-height: 300px;
+    overflow-y: scroll;
+    border: 1px solid #ccc;
+    z-index: 1;
+    width: inherit;
+    position: absolute;
+    background: white;
+    
+  }
+  
+  .search-result {
+    border-bottom: 1px solid #ccc;
+  }
+  #search-results ul{
+    padding: 0px;
+  }
+ 
+  .search-result h4 {
+    font-size: 18px;
+    margin-top: 0;
+  }
+  
+  .search-result p {
+    margin: 0;
+  }
+  @media screen and (max-width: 600px) {
+    .head .texttop{
+        display: none;
+    }
+    .search {
+        width: 200px;
+        z-index: 99;
+    }
+    #dropdown-basic span{
+        display: none;
+    }
+    }

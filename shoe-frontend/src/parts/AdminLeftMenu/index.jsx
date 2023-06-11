@@ -38,7 +38,7 @@ export default function AdminLeftMenu(props) {
                         </a>
                     </li>
                     <li className="menu-item active">
-                        <a href="/product" className="menu-link">
+                        <a href="/ProductAdmin" className="menu-link">
                             <i className="menu-icon tf-icons bx bx-atom"></i>
                             <div data-i18n="Product">Product</div>
                         </a>
