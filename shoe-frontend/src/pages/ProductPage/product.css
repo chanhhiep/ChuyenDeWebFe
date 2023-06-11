@@ -37,9 +37,6 @@ img:not([src]) {
     position: relative
 }
 
-.breadandfilter, .infosp .brand, .infosp .intocart, .infosp .ten, .infosp input.buynow, .listsp li h3, .listsp li span a, .listsp_1 li h3, .listsp_1 li span a, .menumb a div, .navigation .category a, .ribbon span, .sub_category li a {
-    text-transform: uppercase
-}
 .listsp::after, .listsp_1::after {
     display: block
 }
@@ -311,20 +308,25 @@ img:not([src]) {
 }
 
 .sub_category {
-    background: #fffff2;
+    background: #e7e7e7;
     padding: 8px 15px;
     border-radius: 4px;
-    border: 1px dashed #ff9100;
+    border: 1px dashed rgb(248, 240, 225);
     overflow: hidden;
     margin: 10px 0
 }
 
 .sub_category li {
-    position: relative;
-    color: orange;
-    margin: 0 20px;
-    list-style: disc;
-    float: left
+        color: rgb(202, 154, 65);
+        list-style: none;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        border-radius: 10px;
+        border: 1px solid;
+        background: rgb(241, 241, 241);
+        padding: 10px;
+        align-items: center;
 }
 
 .sub_category li:last-child {
@@ -332,16 +334,15 @@ img:not([src]) {
 }
 
 .sub_category li a {
-    color: #0073ca;
+    color: #000000;
     display: block;
     padding: 7px 0;
     font-weight: 400;
-    font-size: 14px
+    font-size: 14px;
+    margin-left:10px;
 }
 
-.sub_category li:hover a {
-    text-decoration: underline
-}
+
 
 .buycall li, .linknews li a {
     display: block;
@@ -389,300 +390,6 @@ img:not([src]) {
 
 .titborder p, .titlehome h2, .titlesale p, footer .col p, footer .phot b, h2.titlenews {
     text-transform: uppercase
-}
-.cssdetail iframe, .cssdetail img, .cssdetail video, .hinhsp img {
-    max-width: 100%
-}
-
-.hinhsp {
-    float: left;
-    width: 418px;
-    transition: all 0.3s ease-in-out;
-}
-
-.hinhsp img {
-    margin-right: 4px;
-    height: auto;
-    display: block;
-}
-.hinhsp:hover img{
-    transform: scale(1.1);
-    opacity: 0.8;
-}
-.infosp {
-    float: left;
-    width: 55%;
-    margin-left: 3%;
-}
-
-.infosp .ten {
-    line-height: 1.3rem;
-    font-size: 19px;
-    color: #333;
-    font-weight: 400;
-    margin: 5px 10px 0 0;
-    float: left;
-
-}
-
-.breadandfilter, .infosp .ten, .infosp .brand, .infosp .intocart, .infosp input.buynow, .infosp.wishlist {
-    text-transform: uppercase;
-}
-
-.infosp a.rew {
-    display: inline-block;
-    margin-top: 5px;
-    float: left;
-    cursor: pointer;
-}
-
-.infosp a.rew span {
-    color: #288ad6;
-    font-size: 14px;
-    font-weight: 400;
-}
-
-.infosp a.rew span i {
-    width: 15px;
-    height: 14px;
-    padding-right: 3px;
-}
-
-.iconcom-star {
-    /*background: url(../images/rate-star.png);*/
-    background-size: 14px;
-}
-
-.infosp .brand {
-    font-weight: 400;
-    font-size: 14px;
-}
-
-.infosp .brand p {
-    display: inline-block;
-}
-
-.infosp p {
-    margin: 6px 0 0;
-}
-
-.infosp .brand p.code {
-    color: #333;
-    margin-left: 10px;
-    position: relative;
-    padding-left: 15px;
-}
-
-.infosp .brand p {
-    display: inline-block;
-}
-
-.infosp p {
-    margin: 6px 0 0;
-}
-
-.infosp .brand a, .infosp .brand p.code b {
-    color: #1f92c8;
-    padding-left: 2px;
-    font-weight: 400;
-}
-
-a {
-    text-decoration: none;
-}
-
-#setPrice {
-    float: left;
-}
-
-#setPrice p {
-    float: left;
-    margin-top: 15px;
-}
-
-.infosp p.price {
-    font-size: 26px;
-    color: #d0021b;
-}
-
-.infosp p.price sup {
-    color: #d0021b;
-}
-
-sup {
-    padding-left: 5px;
-    color: #ce671b;
-}
-
-.infosp p.company {
-    color: #666;
-    font-size: 24px;
-    padding-left: 10px;
-    text-decoration: line-through;
-}
-
-.infosp p.discount {
-    background-image: linear-gradient(-90deg, #ec1f1f 0, #ff9c00 100%);
-    border-radius: 10px;
-    padding: 2px 10px;
-    font-size: 14px;
-    color: #fff;
-    font-weight: 400;
-    margin-left: 10px;
-}
-
-.infosp .khuyenmai {
-    margin-top: 10px;
-    clear: both;
-    border-top: 1px dashed #ccc;
-    padding: 5px 0 10px;
-    font-size: 15px;
-    line-height: 24px;
-}
-
-.infosp .khuyenmai ul {
-    margin-left: 5px;
-    font-size: 16px;
-}
-
-.infosp .khuyenmai ul li {
-    list-style: initial;
-    margin: 4px 0 0 15px;
-}
-
-li {
-    list-style: none;
-}
-
-b, strong {
-    font-weight: 400;
-}
-
-.choosesize, ul.ulsize li {
-    border: 1px solid #dadada;
-}
-
-.choosesize {
-    background: #f4f4f4;
-    padding: 10px;
-    overflow: hidden;
-    margin-bottom: 10px;
-}
-
-.choosesize p {
-    font-weight: 400;
-    text-transform: uppercase;
-    margin: 0;
-    margin-bottom: 10px;
-    font-size: 14px;
-}
-
-ul.ulsize li {
-    float: left;
-    margin-right: 5px;
-    text-align: center;
-    width: 40px;
-    height: 40px;
-    cursor: pointer;
-    background: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.infosp .soluongsp input.soluong {
-    width: 60px;
-    text-align: center;
-    border-radius: 4px;
-    padding-right: 0;
-}
-
-.infosp .soluongsp input {
-    border: 1px solid #dadada;
-    padding: 4px 10px;
-    float: left;
-}
-
-.infosp .upqty {
-    border-radius: 4px;
-    margin-right: 0;
-    border: 1px solid #dadada;
-}
-
-.infosp .downqty, .infosp .upqty {
-    width: 34px;
-    padding: 4px 6px;
-    -webkit-appearance: none;
-    box-sizing: border-box;
-    float: left;
-    margin-left: 5px;
-    text-align: center;
-    cursor: pointer;
-}
-
-.infosp .soluongsp span {
-    float: left;
-    margin-top: 4px;
-    font-style: italic;
-}
-
-.infosp .intocart, .infosp input.buynow, .infosp .wishlist {
-    padding: 11px 0;
-    text-align: center;
-    cursor: pointer;
-    float: left;
-    overflow: hidden;
-}
-
-.infosp input.buynow {
-    width: 180px;
-    margin: 10px 10px 0 0;
-    font-size: 16px;
-    color: #fff;
-    border: 1px solid #d97f00;
-    border-radius: 4px;
-    background: #f89406;
-}
-
-
-
-.infosp .intocart {
-    width: 180px;
-    margin: 10px 10px 0 0;
-    font-size: 16px;
-    color: #f89406;
-    border: 1px solid #f89406;
-    border-radius: 4px;
-    background: #fff;
-}
-
-.infosp .wishlist {
-    width: 180px;
-    margin: 10px 0 0;
-    font-size: 16px;
-    color: #f89406;
-    border: 1px solid #f89406;
-    border-radius: 4px;
-    background: #fff;
-}
-
-.listsp_normal::after {
-    display: block
-}
-
-.listsp_normal {
-    margin: 0 -10px 10px
-}
-
-.cssdetail .listsp_normal li {
-    width: 20%;
-    padding-left: 10px;
-    padding-right: 10px;
-    float: left;
-    margin: 10px 0 15px;
-    text-align: left;
-    list-style: none;
-    margin: 5px 0
 }
 
 .listsp_scroll.listsp_normal li {

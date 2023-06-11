@@ -37,9 +37,7 @@ img:not([src]) {
     position: relative
 }
 
-.breadandfilter, .infosp .brand, .infosp .intocart, .infosp .ten, .infosp input.buynow, .listsp li h3, .listsp li span a, .listsp_1 li h3, .listsp_1 li span a, .menumb a div, .navigation .category a, .ribbon span, .sub_category li a {
-    text-transform: uppercase
-}
+
 .listsp::after, .listsp_1::after {
     display: block
 }
@@ -81,41 +79,8 @@ img:not([src]) {
     margin: 0 2px 2px
 }
 
-.listsp li span.star i.iconcom-star, .listsp_1 li span.star i.iconcom-star, .listsp_1 li span.star i.iconcom-star, .listsp_normal li span.star i.iconcom-star {
-    /*background: url(../images/rate-star.png);*/
-    background-size: 20px
-}
-
-.listsp li span.star i.iconcom-nostar, .listsp_1 li span.star i.iconcom-nostar, .listsp_normal li span.star i.iconcom-nostar {
-    /*background: url(../images/rate-nostar.png);*/
-    background-size: 20px
-}
-
-.listsp li span.star i.iconcom-starhaft, .listsp_1 li span.star i.iconcom-starhaft, .listsp_normal li span.star i.iconcom-starhaft {
-    /*background: url(../images/rate-haftstar.png);*/
-    background-size: 20px
-}
-
-.listsp li h3, .listsp_1 li h3, .listsp_normal li h3 {
-    font-size: 14px;
-    margin: 5px 0;
-    overflow: hidden;
-    font-weight: 400;
-    height: 41px;
-    line-height: 22px
-}
-
-.listsp li h3:hover a, .listsp_1 li h3:hover a, .listsp_normal li h3:hover a {
-    color: #353535;
-    text-decoration: underline
-}
-
-.listsp li h3 a, .listsp_1 li h3 a, .listsp_normal li h3 a {
-    display: table-cell;
-    vertical-align: middle;
-    text-overflow: ellipsis;
-    text-decoration: none;
-    color: #333;
+.listsp li{
+    border: 1px;
 }
 
 .listsp li .kho, .listsp_1 li .kho {
@@ -158,14 +123,7 @@ img:not([src]) {
 .listsp li .info, .listsp_1 li .info, .listsp_normal li .info {
     position: relative;
     box-sizing: border-box;
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -ms-flexbox;
     display: flex;
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-    -webkit-flex-direction: column;
-    -ms-flex-direction: column;
     flex-direction: column
 }
 
@@ -275,7 +233,6 @@ img:not([src]) {
     position: absolute;
     background: #efefef;
     opacity: 0.9;
-    text-transform: uppercase;
     font-weight: bold;
     top: 50%;
     transform: translateY(-50%);
@@ -387,9 +344,7 @@ img:not([src]) {
     text-transform: none
 }
 
-.titborder p, .titlehome h2, .titlesale p, footer .col p, footer .phot b, h2.titlenews {
-    text-transform: uppercase
-}
+
 .cssdetail iframe, .cssdetail img, .cssdetail video, .hinhsp img {
     max-width: 100%
 }
@@ -425,9 +380,6 @@ img:not([src]) {
 
 }
 
-.breadandfilter, .infosp .ten, .infosp .brand, .infosp .intocart, .infosp input.buynow, .infosp.wishlist {
-    text-transform: uppercase;
-}
 
 .infosp a.rew {
     display: inline-block;
@@ -491,14 +443,8 @@ a {
     text-decoration: none;
 }
 
-#setPrice {
-    float: left;
-}
 
-#setPrice p {
-    float: left;
-    margin-top: 15px;
-}
+
 
 .infosp p.price {
     font-size: 26px;
@@ -571,7 +517,6 @@ b, strong {
 
 .choosesize p {
     font-weight: 400;
-    text-transform: uppercase;
     margin: 0;
     margin-bottom: 10px;
     font-size: 14px;
@@ -642,6 +587,13 @@ ul.ulsize li {
     border: 1px solid #d97f00;
     border-radius: 4px;
     background: #f89406;
+}
+@media screen and (max-width: 600px) {
+    .sort-drop{
+        font-size: 12px;
+        padding: 5px ;
+        margin-left: 2px;
+    }
 }
 
 
@@ -734,7 +686,6 @@ ul.ulsize li {
     font-weight: 400;
     height: 41px;
     line-height: 22px;
-    text-transform: uppercase
 }
 
 .listsp_normal li h3:hover a {

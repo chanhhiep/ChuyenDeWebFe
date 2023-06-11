@@ -1,7 +1,29 @@
 import Header from "../../parts/Header";
 import Footer from "../../parts/Footer";
-
+import React, { useEffect, useState } from "react";
+import { Link, useParams } from 'react-router-dom';
+import { toastError, toastSuccess } from '../../services/ToastService';
+import { API_ENDPOINT } from "../../constants";
+import { ButtonGroup,ToggleButton } from "react-bootstrap";
+import axios from "axios";
 export default function WishList () {
+    const [wishList,setWishList] = useState([]);
+    const user = JSON.parse(localStorage.getItem("user"));
+    const accesstoken = localStorage.getItem('token');
+    useEffect(() => {
+        const refetch = (async () => {
+            await axios.get(`${API_ENDPOINT}/api/cart/${user.id}`, { headers: {"Authorization" : `Bearer ${accesstoken}`} })
+            .then(res => {
+                const { data } = res;
+                let deserializedArray = [];
+                Object.values(data).map((item) => deserializedArray.push(item))
+               // setListCart(deserializedArray);
+            });  
+        });
+        return () => {
+            refetch();
+        };
+    }, []);
     return (
         <>
         <Header />

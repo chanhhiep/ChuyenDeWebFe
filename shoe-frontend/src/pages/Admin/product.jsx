@@ -1,6 +1,6 @@
-import { Button } from 'react-bootstrap';
 import React, { useEffect, useRef, useState } from "react";
 //import { FaEllipsisVertical } from "@react-icons/all-files/fa/FaEllipsisVertical";
+import { Table, Button, Form, Input,Modal } from "react-bootstrap";
 import { FaEdit,FaTrashAlt } from 'react-icons/fa';
 //import { useDispatch } from 'react-redux';
 import "./page.css";
@@ -59,7 +59,7 @@ export default function Product() {
     // const [updateSize, setUpdateSize] = useState([]);
      const [updateQuantity, setUpdateQuantity] = useState("");
     //
-    const accesstoken = localStorage.getItem('accesstoken')
+    const accesstoken = localStorage.getItem('token')
     const handleChangeSize = (event) => {
         const value = event.target.value;
         // Add the new value to the state variable.
@@ -97,26 +97,9 @@ export default function Product() {
             await axios.get(`${API_ENDPOINT}/admin/brand`, { headers: {"Authorization" : `Bearer ${accesstoken}`} })
                 .then((res) => {
                 const { data } = res;
-                console.log(data);
-                /*
-                let deserializedArray = [];
-                Object.values(res.data).map((item) => deserializedArray.push(item))
-                //setListProduct([...listProduct, res]);*/
                 setListBrand(data);
                 console.log(listBrand);
             });
-            /*
-            await getSizeList().then((res) => {
-                const { data } = res;
-                console.log(data);
-                
-                let deserializedArray = [];
-                Object.values(res.data).map((item) => deserializedArray.push(item))
-                //setListProduct([...listProduct, res]);
-                setListSize(data);
-                console.log(listSize);
-            });
-            */
             return;
         });
         //cleanup function
@@ -128,8 +111,6 @@ export default function Product() {
 
     //show data
     function handleShowProduct(id){
-        //toastSuccess("Show successfully");
-        
         axios.get(`${API_ENDPOINT}/admin/product/showProduct/${id}`, { headers: {"Authorization" : `Bearer ${accesstoken}`} })
                 .then((res)=>{
             const {data} = res;
@@ -143,27 +124,16 @@ export default function Product() {
             setUpdateDescription(data.description);
             setUpdateBrand(data.brand.id);
             setUpdateQuantity(data.quantity);
-            clickEditToggle();
+            setLgUpdateShow(true);
         })
-    //     fetch(`http://localhost:8080/admin/showproduct/${encodeURIComponent(data)}`)
-    //     .then(res=>res.json())
-    //     .then((response)=>{
-    //         setProduct(response);
-    //         clickEditToggle();
-    //         console.log(response);
-    //         window.location.href = "/";
-    //     }).catch(error => {
-    //         console.log("error")
-    //   })
+   
     }
     function handleDeleteProduct(id) {
         axios.delete(`${API_ENDPOINT}/admin/product/deleteProduct/${id}`, { headers: {"Authorization" : `Bearer ${accesstoken}`} })
                 .then((res) => {
             if (res.data === true) {
-                //toastSuccess("Delete successfully");
-                //removeItem();
                 toastSuccess("Delete successfully");
-                console.log("success");
+                window.location = '/AdminProduct';
             } else {
                 console.log("fails")
                 toastError("Delete item failed");
@@ -268,7 +238,10 @@ export default function Product() {
         .then((res)=>{  
                 toastSuccess("Save successfully");
                 //removeItem();
+                window.location.href = "/";
                 console.log("success");
+                window.location = '/AdminProduct';
+
         })
        
        /*
@@ -313,62 +286,9 @@ export default function Product() {
             })
         }
     }
-    // const handleDeleteProduct = (e) => {
-    //     e.preventDefault()
-    //     fetch(`http://localhost:8080/user/resetAccount/${encodeURIComponent(e)}`,{
-    //   method:"POST",
-    //   headers:{"Content-Type":"application/json"}}).then(()=>{
-    //   console.log("email is sended");
-    //   window.location.href = "/AdminProduct";
-    // }).catch(error=>{
-    //     console.log("error")
-    //  })
-    // }
-    // useEffect(() => {
-    //     window.scrollTo(0, 0);
-    //     const fetchData = (async () => {
-    //         await getHotelDetails(id).then((res) => {
-    //             const { data } = res;
-    //             console.log(data);
-    //             setHotel(data);
-    //         }).catch((err) => {
-    //             setIsError(true);
-    //         });
-    //         await getReservedDate(id).then((res) => {
-    //             setReservedDate(res.data);
-    //         });
-    //         return;
-    //     });
-    //     return () => {
-    //         fetchData();
-    //     };
-    // }, []);
     //togole
-    /*
-    function clickEditToggle(){
-        var popup = document.getElementById("product_edit");
-        popup.classNameList.toggle('active');
-        var blur = document.getElementById("blur-action");
-        blur.classNameList.toggle('active');
-    }
-    function clickCreateToggle(){
-        var popup = document.getElementById("create-product");
-            popup.classNameList.toggle('active');
-        var blur = document.getElementById("blur-action");
-            blur.classNameList.toggle('active');
-    }
-    */
-    const [popupUpdateActive, setPopupUpdateActive] = useState(false);
-    const [blurActive, setBlurActive] = useState(false);
-    const [popupCreateActive, setPopupCreateActive] = useState(false);
-    const clickEditToggle = () => {
-        setPopupUpdateActive(!popupUpdateActive);
-        setBlurActive(!blurActive);
-    };
-    const clickCreateToggle = () => {
-        setPopupCreateActive(!popupCreateActive);
-        setBlurActive(!blurActive);
-    };
+    const [lgShow, setLgShow] = useState(false);
+    const [lgUpdateShow, setLgUpdateShow] = useState(false);
     return (
         <>
             <div className="layout-wrapper layout-content-navbar">
@@ -377,16 +297,109 @@ export default function Product() {
                     <div className="layout-page">
                         <AdminHeader />
                         <div className="content-wrapper" >
-{/*Content*/}
-                            <div className="container-xxl flex-grow-1 container-p-y" style={{filter: blurActive ? "blur(4px)":"none" ,pointerEvents: blurActive ? "none":"auto"}} /*className={blurActive ? "active" : ""}*/ id="blur-action">
+
+                            <div className="container-xxl flex-grow-1 container-p-y">
                                 <div className="card">
                                     <div style={{display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems:"center" , padding: "10px"}} >
                                         <div className="col-md-3">
                                                 <input className="form-control" type="text" placeholder="search here" name="keyword" id="searchTerm" onChange={(e)=>setKeyWord(e.target.value)} onKeyUp={(e)=>handleSearch()} />
                                         </div>
-                                        <button id="addBtn" type="button" className="btn btn-primary" /*style={{marginRight: "20px"}}*/ onClick={(e)=>clickCreateToggle()}>
+                                        {/* <button id="addBtn" type="button" className="btn btn-primary" onClick={(e)=>clickCreateToggle()}>
                                             Create
-                                        </button>
+                                        </button> */}
+                                        <Button onClick={() => setLgShow(true)}>Create</Button>
+                                        <Modal
+        size="lg"
+        show={lgShow}
+        onHide={() => setLgShow(false)}
+        aria-labelledby="example-modal-sizes-title-lg"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title id="example-modal-sizes-title-lg">
+           Create Product
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+                                        <div className="card-body" style={{marginTop: "-3%"}}>
+                                            <div className="mb-3">
+                                                <label className="form-label">Name Product</label>
+                                                <input
+                                                    type="text"
+                                                    className="form-control"
+                                                    placeholder="product name"
+                                                    required="required"
+                                                    name="name"
+                                                    onChange={(e)=>setSaveName(e.target.value)}
+                                                />
+                                            </div>
+                                            <div className="mb-3">
+                                                <label className="form-label">category</label>
+                                                <select onChange={(e)=>setSaveCategoryId(e.target.value)} name="category_id" className="form-select" required="required">
+                                                    {listCategory.map((cate)=>(
+                                                        <option value={cate.id_category}>{cate.name}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <div className="mb-3">
+                                                <label className="form-label">Upload Image</label>
+                                                <input name="images" className="form-control" onChange={(e)=>handleChangeImage(e)} type="file" id="formFileMultiple" multiple />
+                                            </div>
+                                            <div className="mb-3">
+                                                <label className="form-label">Price</label>
+                                                <input
+                                                    type="number"
+                                                    min="0" max="10000000"
+                                                    className="form-control"
+                                                    placeholder="price"
+                                                    required="required"
+                                                    name="price"
+                                                    onChange={(e)=>setSavePrice(e.target.value)}
+                                                />
+                                            </div>
+                                           
+                                            <div className="mb-3">
+                                                <label className="form-label">brand</label>
+                                                <select onChange={(e)=>setSaveBrand(e.target.value)} name="brand" className="form-select" required="required">
+                                                    {listBrand.map((b)=>(
+                                                        <option value={b.id} >{b.name}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <div className="mb-3">
+                                                <label className="form-label">quantity</label>
+                                                <input
+                                                    type="number" min="0" max="100000"
+                                                    className="form-control"
+                                                    placeholder="quantity"
+                                                    required="required"
+                                                    name="quantity"
+                                                    onChange={(e)=>setSaveQuantity(e.target.value)}
+                                                />
+                                            </div>
+                                            <div className="mb-3">
+                                                <label className="form-label">Discount Rate</label>
+                                                <input
+                                                    type="number" min="0" max="100"
+                                                    className="form-control"
+                                                    placeholder="Discount Rate"
+                                                    required="required"
+                                                    name="discountRate"
+                                                    onChange={(e)=>setSaveRate(e.target.value)}
+                                                />
+                                            </div>
+                                            <div className="mb-3">
+                                                <label className="form-label">description</label>
+                                                <textarea onChange={(e)=>setSaveDescription(e.target.value)} name="description" className="form-control" rows="3" required="required"></textarea>
+                                            </div>
+                                            <div className="row mt-3"style={{width:"100%"}}  >
+                                                <div style={{display:"flex",alignItems:"center",justifyContent:"center"}} >
+                                                    <button className="btn btn-primary " style={{width:"60%",height:"100%"}} type="button" onClick={()=>handleSaveProduct()} >Save</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    
+                                    </Modal.Body>
+      </Modal>
                                     </div>
                                     <div className="table-responsive text-nowrap">
                                         <table className="table">
@@ -441,30 +454,13 @@ export default function Product() {
           <td><span className="badge bg-label-primary me-1">Stocking</span></td>
             */}
           <td>
+                {/* <Button onClick={() => setLgShow(true)}>Large modal</Button> */}
                 <a style={{marginLeft:"5px"}} onClick={()=>handleShowProduct(pro.id)}>
                     <FaEdit color="green" size="20px"/>  
                 </a>
                 <a style={{marginLeft:"15px"}} onClick={()=>handleDeleteProduct(pro.id)}>
                     <FaTrashAlt color="red" size="20px"/>
                 </a>
-                {/*
-              <div className="dropdown">
-                  <button type="button" className="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
-                         <FaEdit color="green" size="20px"/>
-                         <FaTrashAlt color="red" size="20px"/>
-                  </button>
-                  <div className="dropdown-menu">
-                      <a style={{marginLeft:"5px"}} onClick={()=>handleShowProduct(pro.id)}>
-                    <FaEdit color="green" size="20px"/>  
-                    Edit
-                      </a>
-                      <a className="dropdown-item" onClick={()=>handleDeleteProduct(pro.id)}
-                      ><i className="bx bx-trash me-1"></i> Delete</a
-                      >
-                  </div>
-                
-              </div>
-              */}
           </td>
       </tr>
         ))}                                                                                                            
@@ -475,15 +471,21 @@ export default function Product() {
 
                             </div>   
 
-                             {/*update form*/}
-   
                             
-                                <div className="d-flex aligns-items-center justify-content-center card text-left w-50 position-absolute top-50 start-50 translate-middle-x" id="product_edit"  style={{marginLeft: "100px",marginTop: "-15%",visibility: popupUpdateActive ? "visible" : "hidden"}}>
-                                    <div className="card mb-4">
-                                        <div style={{display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems:"center"}} >
-                                            <h5 className="card-header">Edit Product</h5>
-                                            <button id="EditBtn" type="button" className="btn btn-danger" style={{marginRight: "20px"}} onClick={(e)=>clickEditToggle()}>Cancel</button>
-                                        </div>
+                                <Modal
+        size="lg"
+        show={lgUpdateShow}
+        onHide={() => setLgUpdateShow(false)}
+        aria-labelledby="example-modal-sizes-title-lg"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title id="example-modal-sizes-title-lg">
+            Large Modal
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+
+                                        
                                         <div className="card-body" style={{marginTop: "-3%"}}>
                                             <div className="mb-3">
                                                 <label className="form-label">Product Id</label>
@@ -544,17 +546,7 @@ export default function Product() {
                                                     onChange={(e)=>setUpdateRate(e.target.value)}
                                                 />
                                             </div>
-                                            {/*
-                                            <div className="mb-3">
-                                                <label className="form-label">Size:</label>
-                                                {listSize.map((size)=>(
-                                                    <>
-                                                    <input name="sizes" type="checkbox" value={size.id}/>
-                                                    {size.size_num}
-                                                    </>
-                                                ))}                                                   
-                                            </div>
-                                                */}
+                                            
                                             <div className="mb-3">
                                                 <label className="form-label">brand</label>
                                                 <select value={updateBrand} onChange={(e)=>setUpdateBrand(e.target.value)} className="form-select" name="brand" id="edit_brand" required="required">
@@ -581,119 +573,16 @@ export default function Product() {
                                                 <label className="form-label">description</label>
                                                 <textarea value={updateDescription} onChange={(e)=>setUpdateDescription(e.target.value)} name="description" className="form-control" id="edit_description" rows="3" required="required"></textarea>
                                             </div>
-                                            <div className="row mt-3">
-                                                <div className="d-grid gap-2 col-lg-6 mx-auto">
-                                                    <button className="btn btn-primary"onClick={()=>handleUpdateProduct()}>Save</button>
-                                                </div>
-                                                <div className="d-grid gap-2 col-lg-6 mx-auto">
-                                                    <button className="btn btn-danger " type="button" onClick={()=>clickEditToggle()}>Cancel</button>
+                                            <div className="row mt-3"style={{width:"100%"}}  >
+                                                <div style={{display:"flex",alignItems:"center",justifyContent:"center"}} >
+                                                    <button className="btn btn-primary " style={{width:"60%",height:"100%"}} type="button" onClick={()=>handleUpdateProduct()} >Save</button>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-                            
+ 
+        </Modal.Body>
+      </Modal>
 
-                           
-                                <div className="d-flex aligns-items-center justify-content-center card text-left w-50 position-absolute top-50 start-50 translate-middle-x" id="create-product" style={{marginLeft: "100px", marginTop: "-15%",visibility: popupCreateActive ? "visible" : "hidden"}} aria-hidden="true">
-                                    <div className="card mb-4">
-                                        <div style={{display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems:"center"}}>
-                                            <h5 className="card-header">Create Product</h5>
-                                            <button id="CreateBtn" type="button" className="btn btn-danger" style={{marginRight: "20px"}} onClick={()=>clickCreateToggle()}>Cancel</button>
-                                        </div>
-                                        <div className="card-body" style={{marginTop: "-3%"}}>
-                                            <div className="mb-3">
-                                                <label className="form-label">Name Product</label>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    placeholder="product name"
-                                                    required="required"
-                                                    name="name"
-                                                    onChange={(e)=>setSaveName(e.target.value)}
-                                                />
-                                            </div>
-                                            <div className="mb-3">
-                                                <label className="form-label">category</label>
-                                                <select onChange={(e)=>setSaveCategoryId(e.target.value)} name="category_id" className="form-select" required="required">
-                                                    {listCategory.map((cate)=>(
-                                                        <option value={cate.id_category}>{cate.name}</option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                            <div className="mb-3">
-                                                <label className="form-label">Upload Image</label>
-                                                <input name="images" className="form-control" onChange={(e)=>handleChangeImage(e)} type="file" id="formFileMultiple" multiple />
-                                            </div>
-                                            <div className="mb-3">
-                                                <label className="form-label">Price</label>
-                                                <input
-                                                    type="number"
-                                                    min="0" max="10000000"
-                                                    className="form-control"
-                                                    placeholder="price"
-                                                    required="required"
-                                                    name="price"
-                                                    onChange={(e)=>setSavePrice(e.target.value)}
-                                                />
-                                            </div>
-                                            <div className="mb-3">
-                                                <label className="form-label">Size:</label>
-                                                {listSize.map((size)=>(
-                                                    <>
-                                                    <input type="checkbox" value={size.id} onChange={(e)=> handleChangeSize(e) }/>
-                                                    {size.size_num}
-                                                    </>
-                                                ))}                                                   
-                                            </div>
-                                            <div className="mb-3">
-                                                <label className="form-label">brand</label>
-                                                <select onChange={(e)=>setSaveBrand(e.target.value)} name="brand" className="form-select" required="required">
-                                                    {listBrand.map((b)=>(
-                                                        <option value={b.id} >{b.name}</option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                            <div className="mb-3">
-                                                <label className="form-label">quantity</label>
-                                                <input
-                                                    type="number" min="0" max="100000"
-                                                    className="form-control"
-                                                    placeholder="quantity"
-                                                    required="required"
-                                                    name="quantity"
-                                                    onChange={(e)=>setSaveQuantity(e.target.value)}
-                                                />
-                                            </div>
-                                            <div className="mb-3">
-                                                <label className="form-label">Discount Rate</label>
-                                                <input
-                                                    type="number" min="0" max="100"
-                                                    className="form-control"
-                                                    placeholder="Discount Rate"
-                                                    required="required"
-                                                    name="discountRate"
-                                                    onChange={(e)=>setSaveRate(e.target.value)}
-                                                />
-                                            </div>
-                                            <div className="mb-3">
-                                                <label className="form-label">description</label>
-                                                <textarea onChange={(e)=>setSaveDescription(e.target.value)} name="description" className="form-control" rows="3" required="required"></textarea>
-                                            </div>
-                                            <div className="row mt-3">
-                                                <div className="d-grid gap-2 col-lg-6 mx-auto">
-                                                    <button className="btn btn-primary btn-lg" type="button" onClick={()=>handleSaveProduct()} >Save</button>
-                                                </div>
-                                                <div className="d-grid gap-2 col-lg-6 mx-auto">
-                                                    <button className="btn btn-danger btn-lg" type="button" onClick={()=>clickCreateToggle()}>Cancel</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            
-
-                            <div className="content-backdrop fade"></div>
                         </div>
 
                     </div>
@@ -701,7 +590,6 @@ export default function Product() {
                 </div>
             
 
-                <div className="layout-overlay layout-menu-toggle"></div>
             </div>
         </>
     );

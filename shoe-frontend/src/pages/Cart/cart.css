@@ -258,7 +258,7 @@ divproduct .product .image span {
 .content {
     width: 55%;
     padding-left: 4%;
-    padding-top: 40px;
+    padding-top: 10px;
 }
 
 .content h4 {
@@ -326,23 +326,7 @@ divproduct .product .image span {
     vertical-align: middle;
 }
 
-input[type=radio] {
-    width: 18px !important;
-    height: 18px;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-  
-    background-size: 18px;
-    outline: 0;
-    border: 0;
-    display: inline-block;
-    -webkit-box-shadow: none !important;
-    -moz-box-shadow: none !important;
-    box-shadow: none !important;
-    cursor: pointer;
-    vertical-align: middle;
-}
+
 
 input[type=radio]:checked {
    
@@ -364,11 +348,6 @@ input[type=radio]:checked {
     border: 1px solid #d97f00;
     border-radius: 4px;
     background: #f89406;
-    background: -webkit-gradient(linear, 0 0, 0 100%, from(#f76b1c), to(#f89406));
-    background: -webkit-linear-gradient(top, #f89406, #f76b1c);
-    background: -moz-linear-gradient(top, #f89406, #f76b1c);
-    background: -ms-linear-gradient(top, #f89406, #f76b1c);
-    background: -o-linear-gradient(top, #f89406, #f76b1c);
     text-align: center;
     font-weight: 400;
     cursor: pointer;

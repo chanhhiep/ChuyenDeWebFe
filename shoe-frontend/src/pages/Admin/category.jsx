@@ -1,34 +1,32 @@
-import { Button } from 'react-bootstrap';
-import React, { useEffect, useRef, useState } from "react";
-//import { FaEllipsisVertical } from "@react-icons/all-files/fa/FaEllipsisVertical";
+
+import React, { useEffect,  useState } from "react";
+import { Button,Modal } from "react-bootstrap";
 import { FaEdit,FaTrashAlt } from 'react-icons/fa';
-//import { useDispatch } from 'react-redux';
 import "./page.css";
 import "./core.css"
 import "./theme-default.css"
-//import "./hidden.css"
-//import { ToastContainer, toast } from 'react-toastify';
 import AdminHeader from "../../parts/AdminHeader";
 import AdminLeftMenu from "../../parts/AdminLeftMenu";
-import { AdminApi,getCategoryList,deleteCategory,updateCategory,showCategory,saveCategory,getCategoryList,getBrandList,getSizeList,searchCategory } from '../../api/admin-api';
 import { API_ENDPOINT } from '../../constants';
 import { toastError, toastSuccess } from '../../services/ToastService';
+import axios from "axios";
 export default function Category() {
     const [loading, setLoading] = useState(false);
 
     const [listCategory,setListCategory] = useState([]);
     const [listBrand ,setListBrand] = useState([]);
     //save state
-    const [saveCategoryName,setsaveCategoryName] = useState("");
+    const [saveCategoryName,setSaveCategoryName] = useState("");
     const [saveImage, setSaveImage] = useState(null);
-    const [saveBrand,setSaveCBrand] = useState("");
+    const [saveBrand,setSaveBrand] = useState("");
+    const [saveDescription, setSaveDescription] = useState("");
      //update state
      const [updateCategoryId,setUpdateCategoryId] = useState("");
      const [updateCategoryName,setUpdateCategoryName] = useState("");
      const [updateBrand, setUpdateBrand] = useState("");
 
     //
-  
+    const accesstoken = localStorage.getItem('token')
     const handleChangeImage = (event) => {
         if (event.target.files && event.target.files[0]) {
             setSaveImage(event.target.files[0]);
@@ -37,12 +35,14 @@ export default function Category() {
    
     useEffect(() => {
         const refetch = (async () => {
-            await getCategoryList().then((res) => {
+            await axios.get(`${API_ENDPOINT}/admin/category`, { headers: {"Authorization" : `Bearer ${accesstoken}`} })
+            .then((res) => {
                 const { data } = res;
                 setListCategory(data);
                 console.log(listCategory);
             });
-            await getBrandList().then((res) => {
+            await axios.get(`${API_ENDPOINT}/admin/brand`, { headers: {"Authorization" : `Bearer ${accesstoken}`} })
+            .then((res) => {
                 const { data } = res;
                 setListBrand(data);
                 console.log(listBrand);
@@ -58,19 +58,19 @@ export default function Category() {
 
     //show data
     function handleShowCategory(id){
-        //toastSuccess("Show successfully");
-        
-        showCategory(id).then((res)=>{
+        axios.get(`${API_ENDPOINT}/admin/category/showCategory/${id}`, { headers: {"Authorization" : `Bearer ${accesstoken}`} })
+            .then((res)=>{
             const {data} = res;
             //setCategory(data);
             setUpdateCategoryId(data.id_category);
             setUpdateCategoryName(data.name);
             setUpdateBrand(data.parent_id);
-            clickEditToggle();
+            setLgUpdateShow(true);
         })
-
+    }
     function handleDeleteCategory(id) {
-        deleteCategory(id).then((res) => {
+        axios.delete(`${API_ENDPOINT}/admin/category/deleteCategory`, { headers: {"Authorization" : `Bearer ${accesstoken}`} })
+            .then((res) => {
             if (res.data === true) {
                 toastSuccess("Delete successfully");
                 console.log("success");
@@ -97,9 +97,12 @@ export default function Category() {
         const data ={
             id: updateCategoryId,
             name: updateCategoryName,
-            brand: updateBrand,
+
+            idParent: updateBrand,
+            
         }
-        updateCategory(data).then((res)=>{
+        axios.put(`${API_ENDPOINT}/admin/category/updateCategory`, data, { headers: {"Authorization" : `Bearer ${accesstoken}`} })
+        .then((res)=>{
                 toastSuccess("Update successfully");
                 //removeItem();
                 console.log("success");
@@ -125,16 +128,17 @@ export default function Category() {
         }
         formData.append("category", JSON.stringify(data));
         formData.append("images",saveImage)
-        saveCategory(formData).then((res)=>{  
+        axios.post(`${API_ENDPOINT}/admin/category/saveCategory`, formData, { headers: {"Authorization" : `Bearer ${accesstoken}`} })
+        .then((res)=>{  
                 toastSuccess("Save successfully");
-                //removeItem();
                 console.log("success");
         })
     }
     const[keyword,setKeyWord] = useState("");
     function handleSearch() {
         if(keyword === ""){
-            getCategoryList().then((res) => {
+            axios.get(`${API_ENDPOINT}/admin/category`, { headers: {"Authorization" : `Bearer ${accesstoken}`} })
+            .then((res) => {
                 const { data } = res;
                 setListCategory(data);
                 console.log(listCategory);
@@ -144,23 +148,15 @@ export default function Category() {
             const data ={
                 keywords : keyword
             }
-            searchCategory(data).then((res)=>{
+            axios.post(`${API_ENDPOINT}/admin/category/search`, data, { headers: {"Authorization" : `Bearer ${accesstoken}`} })
+           .then((res)=>{
                 const {data} = res;
                 setListCategory(data);
             })
         }
     }
-    const [popupUpdateActive, setPopupUpdateActive] = useState(false);
-    const [blurActive, setBlurActive] = useState(false);
-    const [popupCreateActive, setPopupCreateActive] = useState(false);
-    const clickEditToggle = () => {
-        setPopupUpdateActive(!popupUpdateActive);
-        setBlurActive(!blurActive);
-    };
-    const clickCreateToggle = () => {
-        setPopupCreateActive(!popupCreateActive);
-        setBlurActive(!blurActive);
-    };
+    const [lgShow, setLgShow] = useState(false);
+    const [lgUpdateShow, setLgUpdateShow] = useState(false);
     return (
         <>
             <div className="layout-wrapper layout-content-navbar">
@@ -170,15 +166,57 @@ export default function Category() {
                         <AdminHeader />
                         <div className="content-wrapper" >
 
-                            <div className="container-xxl flex-grow-1 container-p-y" style={{filter: blurActive ? "blur(4px)":"none" ,pointerEvents: blurActive ? "none":"auto"}} /*className={blurActive ? "active" : ""}*/ id="blur-action">
+                            <div className="container-xxl flex-grow-1 container-p-y">
                                 <div className="card">
                                     <div style={{display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems:"center" , padding: "10px"}} >
                                         <div className="col-md-3">
                                                 <input className="form-control" type="text" placeholder="search here" name="keyword" id="searchTerm" onChange={(e)=>setKeyWord(e.target.value)} onKeyUp={(e)=>handleSearch()} />
+                                        </div> 
+                                        <Button onClick={() => setLgShow(true)}>Create</Button>
+                                        <Modal
+        size="lg"
+        show={lgShow}
+        onHide={() => setLgShow(false)}
+        aria-labelledby="example-modal-sizes-title-lg"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title id="example-modal-sizes-title-lg">
+           Create Category
+          </Modal.Title>
+        </Modal.Header>
+            <Modal.Body>
+                                        <div className="card-body" style={{marginTop: "-3%"}}>
+                                            <div className="mb-3">
+                                                <label className="form-label">Name Category</label>
+                                                <input
+                                                    type="text"
+                                                    className="form-control"
+                                                    placeholder="Category name"
+                                                    required="required"
+                                                    name="name"
+                                                    onChange={(e)=>setSaveCategoryName(e.target.value)}
+                                                />
+                                            </div>
+                                            <div className="mb-3">
+                                                <label className="form-label">Upload Image</label>
+                                                <input name="images" className="form-control" onChange={(e)=>handleChangeImage(e)} type="file" id="formFileMultiple" multiple />
+                                            </div>
+                                            <div className="mb-3">
+                                                <label className="form-label">brand</label>
+                                                <select onChange={(e)=>setSaveBrand(e.target.value)} name="brand" className="form-select" required="required">
+                                                    {listBrand.map((b)=>(
+                                                        <option value={b.id} >{b.name}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <div className="row mt-3"style={{width:"100%"}}  >
+                                                <div style={{display:"flex",alignItems:"center",justifyContent:"center"}} >
+                                                    <button className="btn btn-primary " style={{width:"60%",height:"100%"}} type="button" onClick={()=>handleSaveCategory()} >Save</button>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <button id="addBtn" type="button" className="btn btn-primary" /*style={{marginRight: "20px"}}*/ onClick={(e)=>clickCreateToggle()}>
-                                            Create
-                                        </button>
+            </Modal.Body>
+        </Modal>
                                     </div>
                                     <div className="table-responsive text-nowrap">
                                         <table className="table">
@@ -195,7 +233,7 @@ export default function Category() {
                                             {listCategory.map((category) => (
           <tr>
           <td><i className="fab fa-angular fa-lg text-danger me-3"></i> <strong>{category.id_category}</strong></td>
-          <td>{pro.name}</td>
+          <td>{category.name}</td>
           <td>
               <ul className="list-unstyled users-list m-0 avatar-group d-flex align-items-center">
                   <li
@@ -210,16 +248,15 @@ export default function Category() {
               </ul>
           </td>
           <td>
-              {pro.parent_id}
+              {category.parent_id}
           </td>
           <td>
-                <a style={{marginLeft:"5px"}} onClick={()=>handleShowCategory(pro.id)}>
+                <a style={{marginLeft:"5px"}} onClick={()=>handleShowCategory(category.id_category)}>
                     <FaEdit color="green" size="20px"/>  
                 </a>
-                <a style={{marginLeft:"15px"}} onClick={()=>handleDeleteCategory(pro.id)}>
+                <a style={{marginLeft:"15px"}} onClick={()=>handleDeleteCategory(category.id_category)}>
                     <FaTrashAlt color="red" size="20px"/>
-                </a>
-              
+                </a> 
           </td>
       </tr>
         ))}                                                                                                            
@@ -233,12 +270,20 @@ export default function Category() {
                              {/*update form*/}
    
                             
-                                <div className="d-flex aligns-items-center justify-content-center card text-left w-50 position-absolute top-50 start-50 translate-middle-x" id="Category_edit"  style={{marginLeft: "100px",marginTop: "-15%",visibility: popupUpdateActive ? "visible" : "hidden"}}>
-                                    <div className="card mb-4">
-                                        <div style={{display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems:"center"}} >
-                                            <h5 className="card-header">Edit Category</h5>
-                                            <button id="EditBtn" type="button" className="btn btn-danger" style={{marginRight: "20px"}} onClick={(e)=>clickEditToggle()}>Cancel</button>
-                                        </div>
+                           
+                                <Modal
+        size="lg"
+        show={lgUpdateShow}
+        onHide={() => setLgUpdateShow(false)}
+        aria-labelledby="example-modal-sizes-title-lg"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title id="example-modal-sizes-title-lg">
+           Update Category
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+                                      
                                         <div className="card-body" style={{marginTop: "-3%"}}>
                                             <div className="mb-3">
                                                 <label className="form-label">Category Id</label>
@@ -273,61 +318,14 @@ export default function Category() {
                                                 </select>
                                             </div>
 
-                                            <div className="row mt-3">
-                                                <div className="d-grid gap-2 col-lg-6 mx-auto">
-                                                    <button className="btn btn-primary btn-lg"onClick={()=>handleUpdateCategory()}>Save</button>
-                                                </div>
-                                                <div className="d-grid gap-2 col-lg-6 mx-auto">
-                                                    <button className="btn btn-danger btn-lg" type="button" onClick={()=>clickEditToggle()}>Cancel</button>
+                                            <div className="row mt-3"style={{width:"100%"}}  >
+                                                <div style={{display:"flex",alignItems:"center",justifyContent:"center"}} >
+                                                    <button className="btn btn-primary " style={{width:"60%",height:"100%"}} type="button" onClick={()=>handleUpdateCategory()} >Save</button>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-                            
-
-                           
-                                <div className="d-flex aligns-items-center justify-content-center card text-left w-50 position-absolute top-50 start-50 translate-middle-x" id="create-Category" style={{marginLeft: "100px", marginTop: "-15%",visibility: popupCreateActive ? "visible" : "hidden"}} aria-hidden="true">
-                                    <div className="card mb-4">
-                                        <div style={{display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems:"center"}}>
-                                            <h5 className="card-header">Create Category</h5>
-                                            <button id="CreateBtn" type="button" className="btn btn-danger" style={{marginRight: "20px"}} onClick={()=>clickCreateToggle()}>Cancel</button>
-                                        </div>
-                                        <div className="card-body" style={{marginTop: "-3%"}}>
-                                            <div className="mb-3">
-                                                <label className="form-label">Name Category</label>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    placeholder="Category name"
-                                                    required="required"
-                                                    name="name"
-                                                    onChange={(e)=>setSaveCategoryName(e.target.value)}
-                                                />
-                                            </div>
-                                            <div className="mb-3">
-                                                <label className="form-label">Upload Image</label>
-                                                <input name="images" className="form-control" onChange={(e)=>handleChangeImage(e)} type="file" id="formFileMultiple" multiple />
-                                            </div>
-                                            <div className="mb-3">
-                                                <label className="form-label">brand</label>
-                                                <select onChange={(e)=>setSaveBrand(e.target.value)} name="brand" className="form-select" required="required">
-                                                    {listBrand.map((b)=>(
-                                                        <option value={b.id} >{b.name}</option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                            <div className="row mt-3">
-                                                <div className="d-grid gap-2 col-lg-6 mx-auto">
-                                                    <button className="btn btn-primary btn-lg" type="button" onClick={()=>handleSaveCategory()} >Save</button>
-                                                </div>
-                                                <div className="d-grid gap-2 col-lg-6 mx-auto">
-                                                    <button className="btn btn-danger btn-lg" type="button" onClick={()=>clickCreateToggle()}>Cancel</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>                  
+        </Modal.Body>
+      </Modal>       
                         </div>
                     </div>
                 </div>           
